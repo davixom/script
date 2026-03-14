@@ -1,2158 +1,2500 @@
---[[
+--[[⊹˚₊‧───────────────‧₊˚⊹·͙⁺˚*•̩̩͙✩•̩̩͙*˚⁺‧͙⁺˚*•̩̩͙✩•̩̩͙*˚⁺‧͙⁺˚*•̩̩͙✩•̩̩͙*˚⁺‧͙⊹˚₊‧───────────────‧₊˚⊹
 
-	Aimbot Module [AirHub] by Exunys © CC0 1.0 Universal (2023)
+  ______                                   ______  __              __                  __     
+ /      \                                 /      \|  \            |  \                |  \    
+|  ▓▓▓▓▓▓\ ______   ______  _______      |  ▓▓▓▓▓▓\\▓▓______ ____ | ▓▓____   ______  _| ▓▓_   
+| ▓▓  | ▓▓/      \ /      \|       \     | ▓▓__| ▓▓  \      \    \| ▓▓    \ /      \|   ▓▓ \  
+| ▓▓  | ▓▓  ▓▓▓▓▓▓\  ▓▓▓▓▓▓\ ▓▓▓▓▓▓▓\    | ▓▓    ▓▓ ▓▓ ▓▓▓▓▓▓\▓▓▓▓\ ▓▓▓▓▓▓▓\  ▓▓▓▓▓▓\\▓▓▓▓▓▓  
+| ▓▓  | ▓▓ ▓▓  | ▓▓ ▓▓    ▓▓ ▓▓  | ▓▓    | ▓▓▓▓▓▓▓▓ ▓▓ ▓▓ | ▓▓ | ▓▓ ▓▓  | ▓▓ ▓▓  | ▓▓ | ▓▓ __ 
+| ▓▓__/ ▓▓ ▓▓__/ ▓▓ ▓▓▓▓▓▓▓▓ ▓▓  | ▓▓    | ▓▓  | ▓▓ ▓▓ ▓▓ | ▓▓ | ▓▓ ▓▓__/ ▓▓ ▓▓__/ ▓▓ | ▓▓|  \
+ \▓▓    ▓▓ ▓▓    ▓▓\▓▓     \ ▓▓  | ▓▓    | ▓▓  | ▓▓ ▓▓ ▓▓ | ▓▓ | ▓▓ ▓▓    ▓▓\▓▓    ▓▓  \▓▓  ▓▓
+  \▓▓▓▓▓▓| ▓▓▓▓▓▓▓  \▓▓▓▓▓▓▓\▓▓   \▓▓     \▓▓   \▓▓\▓▓\▓▓  \▓▓  \▓▓\▓▓▓▓▓▓▓  \▓▓▓▓▓▓    \▓▓▓▓ 
+         | ▓▓                                                                                 
+         | ▓▓                                                                                 
+          \▓▓                                                                                 
 
-	https://github.com/Exunys
+༺☆༻____________☾✧ ✩ ✧☽____________༺☆༻༺☆༻____________☾✧ ✩ ✧☽____________༺☆༻
 
-]]
+    ✨Universal Aim Assist Framework✨
+    Release 1.9.5
 
---// Cache
+    twix.cyou/pix
+    twix.cyou/OpenAimbotV3rm
 
-local pcall, getgenv, next, setmetatable, Vector2new, CFramenew, Color3fromRGB, Drawingnew, TweenInfonew, stringupper, mousemoverel = pcall, getgenv, next, setmetatable, Vector2.new, CFrame.new, Color3.fromRGB, Drawing.new, TweenInfo.new, string.upper, mousemoverel or (Input and Input.MouseMove)
+    Author: ttwiz_z (ttwizz) <i@twix.cyou>
+    License: MIT
+    GitHub: https://github.com/ttwizz/Open-Aimbot
 
---// Launching checks
+    Issues: https://github.com/ttwizz/Open-Aimbot/issues
+    Pull requests: https://github.com/ttwizz/Open-Aimbot/pulls
+    Discussions: https://github.com/ttwizz/Open-Aimbot/discussions
 
-if not getgenv().AirHub or getgenv().AirHub.Aimbot then return end
+    Wiki: https://moderka.org/Open-Aimbot
 
---// Services
+    Trustpilot: https://www.trustpilot.com/review/moderka.org
 
-local RunService = game:GetService("RunService")
+•───────•°•❀•°•───────•୧‿̩͙ ˖︵ꕀ ⠀𓏶 ̣̣̥⠀ ꕀ︵˖ ̩͙‿୨•───────•°•❀•°•───────•]]
+
+
+--! Debugger
+
+local DEBUG = false
+
+if DEBUG then
+    getfenv().getfenv = function()
+        return setmetatable({}, {
+            __index = function()
+                return function()
+                    return true
+                end
+            end
+        })
+    end
+end
+
+
+--! Services
+
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
 
---// Variables
 
-local RequiredDistance, Typing, Running, ServiceConnections, Animation, OriginalSensitivity = 2000, false, false, {}
+--! Interface Manager
 
---// Environment
-
-getgenv().AirHub.Aimbot = {
-	Settings = {
-		Enabled = false,
-		TeamCheck = false,
-		AliveCheck = true,
-		WallCheck = false,
-		Sensitivity = 0, -- Animation length (in seconds) before fully locking onto target
-		ThirdPerson = false, -- Uses mousemoverel instead of CFrame to support locking in third person (could be choppy)
-		ThirdPersonSensitivity = 3,
-		TriggerKey = "MouseButton2",
-		Toggle = false,
-		LockPart = "Head" -- Body part to lock on
-	},
-
-	FOVSettings = {
-		Enabled = true,
-		Visible = true,
-		Amount = 90,
-		Color = Color3fromRGB(255, 255, 255),
-		LockedColor = Color3fromRGB(255, 70, 70),
-		Transparency = 0.5,
-		Sides = 60,
-		Thickness = 1,
-		Filled = false
-	},
-
-	FOVCircle = Drawingnew("Circle")
+local UISettings = {
+    TabWidth = 160,
+    Size = { 580, 460 },
+    Theme = "VSC Dark High Contrast",
+    Acrylic = false,
+    Transparency = true,
+    MinimizeKey = "RightShift",
+    ShowNotifications = true,
+    ShowWarnings = true,
+    RenderingMode = "RenderStepped",
+    AutoImport = true
 }
 
-local Environment = getgenv().AirHub.Aimbot
+local InterfaceManager = {}
 
---// Core Functions
-
-local function ConvertVector(Vector)
-	return Vector2new(Vector.X, Vector.Y)
+function InterfaceManager:ImportSettings()
+    pcall(function()
+        if not DEBUG and getfenv().isfile and getfenv().readfile and getfenv().isfile("UISettings.ttwizz") and getfenv().readfile("UISettings.ttwizz") then
+            for Key, Value in next, HttpService:JSONDecode(getfenv().readfile("UISettings.ttwizz")) do
+                UISettings[Key] = Value
+            end
+        end
+    end)
 end
 
-local function CancelLock()
-	Environment.Locked = nil
-	Environment.FOVCircle.Color = Environment.FOVSettings.Color
-	UserInputService.MouseDeltaSensitivity = OriginalSensitivity
-
-	if Animation then
-		Animation:Cancel()
-	end
+function InterfaceManager:ExportSettings()
+    pcall(function()
+        if not DEBUG and getfenv().isfile and getfenv().readfile and getfenv().writefile then
+            getfenv().writefile("UISettings.ttwizz", HttpService:JSONEncode(UISettings))
+        end
+    end)
 end
 
-local function GetClosestPlayer()
-	if not Environment.Locked then
-		RequiredDistance = (Environment.FOVSettings.Enabled and Environment.FOVSettings.Amount or 2000)
+InterfaceManager:ImportSettings()
 
-		for _, v in next, Players:GetPlayers() do
-			if v ~= LocalPlayer and v.Character and v.Character:FindFirstChild(Environment.Settings.LockPart) and v.Character:FindFirstChildOfClass("Humanoid") then
-				if Environment.Settings.TeamCheck and v.TeamColor == LocalPlayer.TeamColor then continue end
-				if Environment.Settings.AliveCheck and v.Character:FindFirstChildOfClass("Humanoid").Health <= 0 then continue end
-				if Environment.Settings.WallCheck and #(Camera:GetPartsObscuringTarget({v.Character[Environment.Settings.LockPart].Position}, v.Character:GetDescendants())) > 0 then continue end
+UISettings.__LAST_RUN__ = os.date()
+InterfaceManager:ExportSettings()
 
-				local Vector, OnScreen = Camera:WorldToViewportPoint(v.Character[Environment.Settings.LockPart].Position); Vector = ConvertVector(Vector)
-				local Distance = (UserInputService:GetMouseLocation() - Vector).Magnitude
 
-				if Distance < RequiredDistance and OnScreen then
-					RequiredDistance = Distance
-					Environment.Locked = v
-				end
-			end
-		end
-	elseif (UserInputService:GetMouseLocation() - ConvertVector(Camera:WorldToViewportPoint(Environment.Locked.Character[Environment.Settings.LockPart].Position))).Magnitude > RequiredDistance then
-		CancelLock()
-	end
+--! Colors Handler
+
+local ColorsHandler = {}
+
+function ColorsHandler:PackColour(Colour)
+    return typeof(Colour) == "Color3" and { R = Colour.R * 255, G = Colour.G * 255, B = Colour.B * 255 } or typeof(Colour) == "table" and Colour or { R = 255, G = 255, B = 255 }
 end
 
-local function Load()
-	OriginalSensitivity = UserInputService.MouseDeltaSensitivity
-
-	ServiceConnections.RenderSteppedConnection = RunService.RenderStepped:Connect(function()
-		if Environment.FOVSettings.Enabled and Environment.Settings.Enabled then
-			Environment.FOVCircle.Radius = Environment.FOVSettings.Amount
-			Environment.FOVCircle.Thickness = Environment.FOVSettings.Thickness
-			Environment.FOVCircle.Filled = Environment.FOVSettings.Filled
-			Environment.FOVCircle.NumSides = Environment.FOVSettings.Sides
-			Environment.FOVCircle.Color = Environment.FOVSettings.Color
-			Environment.FOVCircle.Transparency = Environment.FOVSettings.Transparency
-			Environment.FOVCircle.Visible = Environment.FOVSettings.Visible
-			Environment.FOVCircle.Position = Vector2new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
-		else
-			Environment.FOVCircle.Visible = false
-		end
-
-		if Running and Environment.Settings.Enabled then
-			GetClosestPlayer()
-
-			if Environment.Locked then
-				if Environment.Settings.ThirdPerson then
-					local Vector = Camera:WorldToViewportPoint(Environment.Locked.Character[Environment.Settings.LockPart].Position)
-
-					mousemoverel((Vector.X - UserInputService:GetMouseLocation().X) * Environment.Settings.ThirdPersonSensitivity, (Vector.Y - UserInputService:GetMouseLocation().Y) * Environment.Settings.ThirdPersonSensitivity)
-				else
-					if Environment.Settings.Sensitivity > 0 then
-						Animation = TweenService:Create(Camera, TweenInfonew(Environment.Settings.Sensitivity, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {CFrame = CFramenew(Camera.CFrame.Position, Environment.Locked.Character[Environment.Settings.LockPart].Position)})
-						Animation:Play()
-					else
-						Camera.CFrame = CFramenew(Camera.CFrame.Position, Environment.Locked.Character[Environment.Settings.LockPart].Position)
-					end
-
-					UserInputService.MouseDeltaSensitivity = 0
-				end
-
-				Environment.FOVCircle.Color = Environment.FOVSettings.LockedColor
-			end
-		end
-	end)
-
-	ServiceConnections.InputBeganConnection = UserInputService.InputBegan:Connect(function(Input)
-		if not Typing then
-			pcall(function()
-				if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Enum.KeyCode[#Environment.Settings.TriggerKey == 1 and stringupper(Environment.Settings.TriggerKey) or Environment.Settings.TriggerKey] or Input.UserInputType == Enum.UserInputType[Environment.Settings.TriggerKey] then
-					if Environment.Settings.Toggle then
-						Running = not Running
-
-						if not Running then
-							CancelLock()
-						end
-					else
-						Running = true
-					end
-				end
-			end)
-		end
-	end)
-
-	ServiceConnections.InputEndedConnection = UserInputService.InputEnded:Connect(function(Input)
-		if not Typing then
-			if not Environment.Settings.Toggle then
-				pcall(function()
-					if Input.UserInputType == Enum.UserInputType.Keyboard and Input.KeyCode == Enum.KeyCode[#Environment.Settings.TriggerKey == 1 and stringupper(Environment.Settings.TriggerKey) or Environment.Settings.TriggerKey] or Input.UserInputType == Enum.UserInputType[Environment.Settings.TriggerKey] then
-						Running = false; CancelLock()
-					end
-				end)
-			end
-		end
-	end)
+function ColorsHandler:UnpackColour(Colour)
+    return typeof(Colour) == "table" and Color3.fromRGB(Colour.R, Colour.G, Colour.B) or typeof(Colour) == "Color3" and Colour or Color3.fromRGB(255, 255, 255)
 end
 
---// Typing Check
 
-ServiceConnections.TypingStartedConnection = UserInputService.TextBoxFocused:Connect(function()
-	Typing = true
+--! Configuration Importer
+
+local ImportedConfiguration = {}
+
+pcall(function()
+    if not DEBUG and getfenv().isfile and getfenv().readfile and getfenv().isfile(string.format("%s.ttwizz", game.GameId)) and getfenv().readfile(string.format("%s.ttwizz", game.GameId)) and UISettings.AutoImport then
+        ImportedConfiguration = HttpService:JSONDecode(getfenv().readfile(string.format("%s.ttwizz", game.GameId)))
+        for Key, Value in next, ImportedConfiguration do
+            if Key == "FoVColour" or Key == "NameESPOutlineColour" or Key == "ESPColour" then
+                ImportedConfiguration[Key] = ColorsHandler:UnpackColour(Value)
+            end
+        end
+    end
 end)
 
-ServiceConnections.TypingEndedConnection = UserInputService.TextBoxFocusReleased:Connect(function()
-	Typing = false
-end)
 
---// Functions
+--! Configuration Initializer
 
-Environment.Functions = {}
+local Configuration = {}
 
-function Environment.Functions:Exit()
-	for _, v in next, ServiceConnections do
-		v:Disconnect()
-	end
+--? Aimbot
 
-	Environment.FOVCircle:Remove()
+Configuration.Aimbot = ImportedConfiguration["Aimbot"] or false
+Configuration.OnePressAimingMode = ImportedConfiguration["OnePressAimingMode"] or false
+Configuration.AimKey = ImportedConfiguration["AimKey"] or "RMB"
+Configuration.AimMode = ImportedConfiguration["AimMode"] or "Camera"
+Configuration.SilentAimMethods = ImportedConfiguration["SilentAimMethods"] or { "Mouse.Hit / Mouse.Target", "GetMouseLocation" }
+Configuration.SilentAimChance = ImportedConfiguration["SilentAimChance"] or 100
+Configuration.OffAimbotAfterKill = ImportedConfiguration["OffAimbotAfterKill"] or false
+Configuration.AimPartDropdownValues = ImportedConfiguration["AimPartDropdownValues"] or { "Head", "HumanoidRootPart" }
+Configuration.AimPart = ImportedConfiguration["AimPart"] or "HumanoidRootPart"
+Configuration.RandomAimPart = ImportedConfiguration["RandomAimPart"] or false
 
-	getgenv().AirHub.Aimbot.Functions = nil
-	getgenv().AirHub.Aimbot = nil
+Configuration.UseOffset = ImportedConfiguration["UseOffset"] or false
+Configuration.OffsetType = ImportedConfiguration["OffsetType"] or "Static"
+Configuration.StaticOffsetIncrement = ImportedConfiguration["StaticOffsetIncrement"] or 10
+Configuration.DynamicOffsetIncrement = ImportedConfiguration["DynamicOffsetIncrement"] or 10
+Configuration.AutoOffset = ImportedConfiguration["AutoOffset"] or false
+Configuration.MaxAutoOffset = ImportedConfiguration["MaxAutoOffset"] or 50
 
-	Load = nil; ConvertVector = nil; CancelLock = nil; GetClosestPlayer = nil;
+Configuration.UseSensitivity = ImportedConfiguration["UseSensitivity"] or false
+Configuration.Sensitivity = ImportedConfiguration["Sensitivity"] or 50
+Configuration.UseNoise = ImportedConfiguration["UseNoise"] or false
+Configuration.NoiseFrequency = ImportedConfiguration["NoiseFrequency"] or 50
+
+--? Bots
+
+Configuration.SpinBot = ImportedConfiguration["SpinBot"] or false
+Configuration.OnePressSpinningMode = ImportedConfiguration["OnePressSpinningMode"] or false
+Configuration.SpinKey = ImportedConfiguration["SpinKey"] or "Q"
+Configuration.SpinBotVelocity = ImportedConfiguration["SpinBotVelocity"] or 50
+Configuration.SpinPartDropdownValues = ImportedConfiguration["SpinPartDropdownValues"] or { "Head", "HumanoidRootPart" }
+Configuration.SpinPart = ImportedConfiguration["SpinPart"] or "HumanoidRootPart"
+Configuration.RandomSpinPart = ImportedConfiguration["RandomSpinPart"] or false
+
+Configuration.TriggerBot = ImportedConfiguration["TriggerBot"] or false
+Configuration.OnePressTriggeringMode = ImportedConfiguration["OnePressTriggeringMode"] or false
+Configuration.SmartTriggerBot = ImportedConfiguration["SmartTriggerBot"] or false
+Configuration.TriggerKey = ImportedConfiguration["TriggerKey"] or "E"
+Configuration.TriggerBotChance = ImportedConfiguration["TriggerBotChance"] or 100
+
+--? Checks
+
+Configuration.AliveCheck = ImportedConfiguration["AliveCheck"] or false
+Configuration.GodCheck = ImportedConfiguration["GodCheck"] or false
+Configuration.TeamCheck = ImportedConfiguration["TeamCheck"] or false
+Configuration.FriendCheck = ImportedConfiguration["FriendCheck"] or false
+Configuration.FollowCheck = ImportedConfiguration["FollowCheck"] or false
+Configuration.VerifiedBadgeCheck = ImportedConfiguration["VerifiedBadgeCheck"] or false
+Configuration.WallCheck = ImportedConfiguration["WallCheck"] or false
+Configuration.WaterCheck = ImportedConfiguration["WaterCheck"] or false
+
+Configuration.FoVCheck = ImportedConfiguration["FoVCheck"] or false
+Configuration.FoVRadius = ImportedConfiguration["FoVRadius"] or 100
+Configuration.MagnitudeCheck = ImportedConfiguration["MagnitudeCheck"] or false
+Configuration.TriggerMagnitude = ImportedConfiguration["TriggerMagnitude"] or 500
+Configuration.TransparencyCheck = ImportedConfiguration["TransparencyCheck"] or false
+Configuration.IgnoredTransparency = ImportedConfiguration["IgnoredTransparency"] or 0.5
+Configuration.WhitelistedGroupCheck = ImportedConfiguration["WhitelistedGroupCheck"] or false
+Configuration.WhitelistedGroup = ImportedConfiguration["WhitelistedGroup"] or 0
+Configuration.BlacklistedGroupCheck = ImportedConfiguration["BlacklistedGroupCheck"] or false
+Configuration.BlacklistedGroup = ImportedConfiguration["BlacklistedGroup"] or 0
+
+Configuration.IgnoredPlayersCheck = ImportedConfiguration["IgnoredPlayersCheck"] or false
+Configuration.IgnoredPlayersDropdownValues = ImportedConfiguration["IgnoredPlayersDropdownValues"] or {}
+Configuration.IgnoredPlayers = ImportedConfiguration["IgnoredPlayers"] or {}
+Configuration.TargetPlayersCheck = ImportedConfiguration["TargetPlayersCheck"] or false
+Configuration.TargetPlayersDropdownValues = ImportedConfiguration["TargetPlayersDropdownValues"] or {}
+Configuration.TargetPlayers = ImportedConfiguration["TargetPlayers"] or {}
+
+Configuration.PremiumCheck = ImportedConfiguration["PremiumCheck"] or false
+
+--? Visuals
+
+Configuration.FoV = ImportedConfiguration["FoV"] or false
+Configuration.FoVKey = ImportedConfiguration["FoVKey"] or "R"
+Configuration.FoVThickness = ImportedConfiguration["FoVThickness"] or 2
+Configuration.FoVOpacity = ImportedConfiguration["FoVOpacity"] or 0.8
+Configuration.FoVFilled = ImportedConfiguration["FoVFilled"] or false
+Configuration.FoVColour = ImportedConfiguration["FoVColour"] or Color3.fromRGB(255, 255, 255)
+
+Configuration.SmartESP = ImportedConfiguration["SmartESP"] or false
+Configuration.ESPKey = ImportedConfiguration["ESPKey"] or "T"
+Configuration.ESPBox = ImportedConfiguration["ESPBox"] or false
+Configuration.ESPBoxFilled = ImportedConfiguration["ESPBoxFilled"] or false
+Configuration.NameESP = ImportedConfiguration["NameESP"] or false
+Configuration.NameESPFont = ImportedConfiguration["NameESPFont"] or "Monospace"
+Configuration.NameESPSize = ImportedConfiguration["NameESPSize"] or 16
+Configuration.NameESPOutlineColour = ImportedConfiguration["NameESPOutlineColour"] or Color3.fromRGB(0, 0, 0)
+Configuration.HealthESP = ImportedConfiguration["HealthESP"] or false
+Configuration.MagnitudeESP = ImportedConfiguration["MagnitudeESP"] or false
+Configuration.TracerESP = ImportedConfiguration["TracerESP"] or false
+Configuration.ESPThickness = ImportedConfiguration["ESPThickness"] or 2
+Configuration.ESPOpacity = ImportedConfiguration["ESPOpacity"] or 0.8
+Configuration.ESPColour = ImportedConfiguration["ESPColour"] or Color3.fromRGB(255, 255, 255)
+Configuration.ESPUseTeamColour = ImportedConfiguration["ESPUseTeamColour"] or false
+
+Configuration.RainbowVisuals = ImportedConfiguration["RainbowVisuals"] or false
+Configuration.RainbowDelay = ImportedConfiguration["RainbowDelay"] or 5
+
+
+--! Constants
+
+local Player = Players.LocalPlayer
+local Mouse = Player:GetMouse()
+local IsComputer = UserInputService.KeyboardEnabled and UserInputService.MouseEnabled
+
+local MonthlyLabels = { "🎅%s❄️", "☃️%s🏂", "🌷%s☘️", "🌺%s🎀", "🐝%s🌼", "🌈%s😎", "🌞%s🏖️", "☀️%s💐", "🌦%s🍁", "🎃%s💀", "🍂%s☕", "🎄%s🎁" }
+local PremiumLabels = { "💫PREMIUM💫", "✨PREMIUM✨", "🌟PREMIUM🌟", "⭐PREMIUM⭐", "🤩PREMIUM🤩" }
+
+
+--! Names Handler
+
+local function GetPlayerName(String)
+    if typeof(String) == "string" and #String > 0 then
+        for _, _Player in next, Players:GetPlayers() do
+            if string.sub(string.lower(_Player.Name), 1, #string.lower(String)) == string.lower(String) then
+                return _Player.Name
+            end
+        end
+    end
+    return ""
 end
 
-function Environment.Functions:Restart()
-	for _, v in next, ServiceConnections do
-		v:Disconnect()
-	end
 
-	Load()
-end
+--! Fields
 
-function Environment.Functions:ResetSettings()
-	Environment.Settings = {
-		Enabled = false,
-		TeamCheck = false,
-		AliveCheck = true,
-		WallCheck = false,
-		Sensitivity = 0, -- Animation length (in seconds) before fully locking onto target
-		ThirdPerson = false, -- Uses mousemoverel instead of CFrame to support locking in third person (could be choppy)
-		ThirdPersonSensitivity = 3,
-		TriggerKey = "MouseButton2",
-		Toggle = false,
-		LockPart = "Head" -- Body part to lock on
-	}
+local Status = ""
 
-	Environment.FOVSettings = {
-		Enabled = true,
-		Visible = true,
-		Amount = 90,
-		Color = Color3fromRGB(255, 255, 255),
-		LockedColor = Color3fromRGB(255, 70, 70),
-		Transparency = 0.5,
-		Sides = 60,
-		Thickness = 1,
-		Filled = false
-	}
-end
+local Fluent = nil
+local ShowWarning = false
 
-setmetatable(Environment.Functions, {
-	__newindex = warn
-})
+local RobloxActive = true
+local Clock = os.clock()
 
---// Load
+local Aiming = false
+local Target = nil
+local Tween = nil
+local MouseSensitivity = UserInputService.MouseDeltaSensitivity
 
-Load()
-
-
---[[
-
-	Wall Hack Module [AirHub] by Exunys © CC0 1.0 Universal (2023)
-
-	https://github.com/Exunys
-
-]]
-
---// Cache
-
-local select, next, tostring, pcall, getgenv, setmetatable, mathfloor, mathabs, mathcos, mathsin, mathrad, wait = select, next, tostring, pcall, getgenv, setmetatable, math.floor, math.abs, math.cos, math.sin, math.rad, task.wait
-local WorldToViewportPoint, Vector2new, Vector3new, Vector3zero, CFramenew, Drawingnew, Color3fromRGB = nil, Vector2.new, Vector3.new, Vector3.zero, CFrame.new, Drawing.new, Color3.fromRGB
-
---// Launching checks
-
-if not getgenv().AirHub or getgenv().AirHub.WallHack then return end
-
---// Services
-
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
-
---// Variables
-
-local ServiceConnections = {}
-
---// Environment
-
-getgenv().AirHub.WallHack = {
-	Settings = {
-		Enabled = false,
-		TeamCheck = false,
-		AliveCheck = true
-	},
-
-	Visuals = {
-		ChamsSettings = {
-			Enabled = false,
-			Color = Color3fromRGB(255, 255, 255),
-			Transparency = 0.2,
-			Thickness = 0,
-			Filled = true,
-			EntireBody = false -- For R15, keep false to prevent lag
-		},
-
-		ESPSettings = {
-			Enabled = true,
-			TextColor = Color3fromRGB(255, 255, 255),
-			TextSize = 14,
-			Outline = true,
-			OutlineColor = Color3fromRGB(0, 0, 0),
-			TextTransparency = 0.7,
-			TextFont = Drawing.Fonts.UI, -- UI, System, Plex, Monospace
-			Offset = 20,
-			DisplayDistance = true,
-			DisplayHealth = true,
-			DisplayName = true
-		},
-
-		TracersSettings = {
-			Enabled = true,
-			Type = 1, -- 1 - Bottom; 2 - Center; 3 - Mouse
-			Transparency = 0.7,
-			Thickness = 1,
-			Color = Color3fromRGB(255, 255, 255)
-		},
-
-		BoxSettings = {
-			Enabled = true,
-			Type = 1; -- 1 - 3D; 2 - 2D
-			Color = Color3fromRGB(255, 255, 255),
-			Transparency = 0.7,
-			Thickness = 1,
-			Filled = false, -- For 2D
-			Increase = 1 -- For 3D
-		},
-
-		HeadDotSettings = {
-			Enabled = true,
-			Color = Color3fromRGB(255, 255, 255),
-			Transparency = 0.5,
-			Thickness = 1,
-			Filled = false,
-			Sides = 30
-		},
-
-		HealthBarSettings = {
-			Enabled = false,
-			Transparency = 0.8,
-			Size = 2,
-			Offset = 10,
-			OutlineColor = Color3fromRGB(0, 0, 0),
-			Blue = 50,
-			Type = 3 -- 1 - Top; 2 - Bottom; 3 - Left; 4 - Right
-		}
-	},
-
-	Crosshair = {
-		Settings = {
-			Enabled = false,
-			Type = 1, -- 1 - Mouse; 2 - Center
-			Size = 12,
-			Thickness = 1,
-			Color = Color3fromRGB(0, 255, 0),
-			Transparency = 1,
-			GapSize = 5,
-			Rotation = 0,
-			CenterDot = false,
-			CenterDotColor = Color3fromRGB(0, 255, 0),
-			CenterDotSize = 1,
-			CenterDotTransparency = 1,
-			CenterDotFilled = true,
-			CenterDotThickness = 1
-		},
-
-		Parts = {
-			LeftLine = Drawingnew("Line"),
-			RightLine = Drawingnew("Line"),
-			TopLine = Drawingnew("Line"),
-			BottomLine = Drawingnew("Line"),
-			CenterDot = Drawingnew("Circle")
-		}
-	},
-
-	WrappedPlayers = {}
-}
-
-local Environment = getgenv().AirHub.WallHack
-
---// Core Functions
-
-WorldToViewportPoint = function(...)
-	return Camera.WorldToViewportPoint(Camera, ...)
-end
-
-local function GetPlayerTable(Player)
-	for _, v in next, Environment.WrappedPlayers do
-		if v.Name == Player.Name then
-			return v
-		end
-	end
-end
-
-local function AssignRigType(Player)
-	local PlayerTable = GetPlayerTable(Player)
-
-	repeat wait(0) until Player.Character
-
-	if Player.Character:FindFirstChild("Torso") and not Player.Character:FindFirstChild("LowerTorso") then
-		PlayerTable.RigType = "R6"
-	elseif Player.Character:FindFirstChild("LowerTorso") and not Player.Character:FindFirstChild("Torso") then
-		PlayerTable.RigType = "R15"
-	else
-		repeat AssignRigType(Player) until PlayerTable.RigType
-	end
-end
-
-local function InitChecks(Player)
-	local PlayerTable = GetPlayerTable(Player)
-
-	PlayerTable.Connections.UpdateChecks = RunService.RenderStepped:Connect(function()
-		if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") then
-			if Environment.Settings.AliveCheck then
-				PlayerTable.Checks.Alive = Player.Character:FindFirstChildOfClass("Humanoid").Health > 0
-			else
-				PlayerTable.Checks.Alive = true
-			end
-
-			if Environment.Settings.TeamCheck then
-				PlayerTable.Checks.Team = Player.TeamColor ~= LocalPlayer.TeamColor
-			else
-				PlayerTable.Checks.Team = true
-			end
-		else
-			PlayerTable.Checks.Alive = false
-			PlayerTable.Checks.Team = false
-		end
-	end)
-end
-
-local function UpdateCham(Part, Cham)
-	local CorFrame, PartSize = Part.CFrame, Part.Size / 2
-
-	if select(2, WorldToViewportPoint(CorFrame * CFramenew(PartSize.X / 2,  PartSize.Y / 2, PartSize.Z / 2).Position)) and Environment.Visuals.ChamsSettings.Enabled then
-
-		--// Quad 1 - Front
-
-		Cham.Quad1.Transparency = Environment.Visuals.ChamsSettings.Transparency
-		Cham.Quad1.Color = Environment.Visuals.ChamsSettings.Color
-		Cham.Quad1.Thickness = Environment.Visuals.ChamsSettings.Thickness
-		Cham.Quad1.Filled = Environment.Visuals.ChamsSettings.Filled
-		Cham.Quad1.Visible = Environment.Visuals.ChamsSettings.Enabled
-
-		local PosTopLeft = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X,  PartSize.Y, PartSize.Z).Position)
-		local PosTopRight = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X,  PartSize.Y, PartSize.Z).Position)
-		local PosBottomLeft = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, -PartSize.Y, PartSize.Z).Position)
-		local PosBottomRight = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, -PartSize.Y, PartSize.Z).Position)
-
-		Cham.Quad1.PointA = Vector2new(PosTopLeft.X, PosTopLeft.Y)
-		Cham.Quad1.PointB = Vector2new(PosBottomLeft.X, PosBottomLeft.Y)
-		Cham.Quad1.PointC = Vector2new(PosBottomRight.X, PosBottomRight.Y)
-		Cham.Quad1.PointD = Vector2new(PosTopRight.X, PosTopRight.Y)
-
-		--// Quad 2 - Back
-
-		Cham.Quad2.Transparency = Environment.Visuals.ChamsSettings.Transparency
-		Cham.Quad2.Color = Environment.Visuals.ChamsSettings.Color
-		Cham.Quad2.Thickness = Environment.Visuals.ChamsSettings.Thickness
-		Cham.Quad2.Filled = Environment.Visuals.ChamsSettings.Filled
-		Cham.Quad2.Visible = Environment.Visuals.ChamsSettings.Enabled
-
-		local PosTopLeft2 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X,  PartSize.Y, -PartSize.Z).Position)
-		local PosTopRight2 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X,  PartSize.Y, -PartSize.Z).Position)
-		local PosBottomLeft2 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, -PartSize.Y, -PartSize.Z).Position)
-		local PosBottomRight2 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, -PartSize.Y, -PartSize.Z).Position)
-
-		Cham.Quad2.PointA = Vector2new(PosTopLeft2.X, PosTopLeft2.Y)
-		Cham.Quad2.PointB = Vector2new(PosBottomLeft2.X, PosBottomLeft2.Y)
-		Cham.Quad2.PointC = Vector2new(PosBottomRight2.X, PosBottomRight2.Y)
-		Cham.Quad2.PointD = Vector2new(PosTopRight2.X, PosTopRight2.Y)
-
-		--// Quad 3 - Top
-
-		Cham.Quad3.Transparency = Environment.Visuals.ChamsSettings.Transparency
-		Cham.Quad3.Color = Environment.Visuals.ChamsSettings.Color
-		Cham.Quad3.Thickness = Environment.Visuals.ChamsSettings.Thickness
-		Cham.Quad3.Filled = Environment.Visuals.ChamsSettings.Filled
-		Cham.Quad3.Visible = Environment.Visuals.ChamsSettings.Enabled
-
-		local PosTopLeft3 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X,  PartSize.Y, PartSize.Z).Position)
-		local PosTopRight3 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, PartSize.Y, PartSize.Z).Position)
-		local PosBottomLeft3 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, PartSize.Y, -PartSize.Z).Position)
-		local PosBottomRight3 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, PartSize.Y, -PartSize.Z).Position)
-
-		Cham.Quad3.PointA = Vector2new(PosTopLeft3.X, PosTopLeft3.Y)
-		Cham.Quad3.PointB = Vector2new(PosBottomLeft3.X, PosBottomLeft3.Y)
-		Cham.Quad3.PointC = Vector2new(PosBottomRight3.X, PosBottomRight3.Y)
-		Cham.Quad3.PointD = Vector2new(PosTopRight3.X, PosTopRight3.Y)
-
-		--// Quad 4 - Bottom
-
-		Cham.Quad4.Transparency = Environment.Visuals.ChamsSettings.Transparency
-		Cham.Quad4.Color = Environment.Visuals.ChamsSettings.Color
-		Cham.Quad4.Thickness = Environment.Visuals.ChamsSettings.Thickness
-		Cham.Quad4.Filled = Environment.Visuals.ChamsSettings.Filled
-		Cham.Quad4.Visible = Environment.Visuals.ChamsSettings.Enabled
-
-		local PosTopLeft4 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X,  -PartSize.Y, PartSize.Z).Position)
-		local PosTopRight4 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, -PartSize.Y, PartSize.Z).Position)
-		local PosBottomLeft4 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, -PartSize.Y, -PartSize.Z).Position)
-		local PosBottomRight4 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, -PartSize.Y, -PartSize.Z).Position)
-
-		Cham.Quad4.PointA = Vector2new(PosTopLeft4.X, PosTopLeft4.Y)
-		Cham.Quad4.PointB = Vector2new(PosBottomLeft4.X, PosBottomLeft4.Y)
-		Cham.Quad4.PointC = Vector2new(PosBottomRight4.X, PosBottomRight4.Y)
-		Cham.Quad4.PointD = Vector2new(PosTopRight4.X, PosTopRight4.Y)
-
-		--// Quad 5 - Right
-
-		Cham.Quad5.Transparency = Environment.Visuals.ChamsSettings.Transparency
-		Cham.Quad5.Color = Environment.Visuals.ChamsSettings.Color
-		Cham.Quad5.Thickness = Environment.Visuals.ChamsSettings.Thickness
-		Cham.Quad5.Filled = Environment.Visuals.ChamsSettings.Filled
-		Cham.Quad5.Visible = Environment.Visuals.ChamsSettings.Enabled
-
-		local PosTopLeft5 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X,  PartSize.Y, PartSize.Z).Position)
-		local PosTopRight5 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, PartSize.Y, -PartSize.Z).Position)
-		local PosBottomLeft5 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, -PartSize.Y, PartSize.Z).Position)
-		local PosBottomRight5 = WorldToViewportPoint(CorFrame * CFramenew(PartSize.X, -PartSize.Y, -PartSize.Z).Position)
-
-		Cham.Quad5.PointA = Vector2new(PosTopLeft5.X, PosTopLeft5.Y)
-		Cham.Quad5.PointB = Vector2new(PosBottomLeft5.X, PosBottomLeft5.Y)
-		Cham.Quad5.PointC = Vector2new(PosBottomRight5.X, PosBottomRight5.Y)
-		Cham.Quad5.PointD = Vector2new(PosTopRight5.X, PosTopRight5.Y)
-
-		--// Quad 6 - Left
-
-		Cham.Quad6.Transparency = Environment.Visuals.ChamsSettings.Transparency
-		Cham.Quad6.Color = Environment.Visuals.ChamsSettings.Color
-		Cham.Quad6.Thickness = Environment.Visuals.ChamsSettings.Thickness
-		Cham.Quad6.Filled = Environment.Visuals.ChamsSettings.Filled
-		Cham.Quad6.Visible = Environment.Visuals.ChamsSettings.Enabled
-
-		local PosTopLeft6 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X,  PartSize.Y, PartSize.Z).Position)
-		local PosTopRight6 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, PartSize.Y, -PartSize.Z).Position)
-		local PosBottomLeft6 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, -PartSize.Y, PartSize.Z).Position)
-		local PosBottomRight6 = WorldToViewportPoint(CorFrame * CFramenew(-PartSize.X, -PartSize.Y, -PartSize.Z).Position)
-
-		Cham.Quad6.PointA = Vector2new(PosTopLeft6.X, PosTopLeft6.Y)
-		Cham.Quad6.PointB = Vector2new(PosBottomLeft6.X, PosBottomLeft6.Y)
-		Cham.Quad6.PointC = Vector2new(PosBottomRight6.X, PosBottomRight6.Y)
-		Cham.Quad6.PointD = Vector2new(PosTopRight6.X, PosTopRight6.Y)
-	else
-		for i = 1, 6 do
-			Cham["Quad"..tostring(i)].Visible = false
-		end
-	end
-end
-
---// Visuals
-
-local Visuals = {
-	AddChams = function(Player)
-		local PlayerTable = GetPlayerTable(Player)
-
-		local function UpdateRig()
-			for _, v in next, PlayerTable.Chams do
-				for i = 1, 6 do
-					local Quad = v["Quad"..tostring(i)]
-
-					if Quad and Quad.Remove then
-						Quad:Remove()
-					end
-				end
-			end
-
-			if PlayerTable.RigType == "R15" then
-				if not Environment.Visuals.ChamsSettings.EntireBody then
-					PlayerTable.Chams = {
-						Head = {},
-						UpperTorso = {},
-						LeftLowerArm = {}, LeftUpperArm = {},
-						RightLowerArm = {}, RightUpperArm = {},
-						LeftLowerLeg = {}, LeftUpperLeg = {},
-						RightLowerLeg = {}, RightUpperLeg = {}
-					}
-				else
-					PlayerTable.Chams = {
-						Head = {},
-						UpperTorso = {}, LowerTorso = {},
-						LeftLowerArm = {}, LeftUpperArm = {}, LeftHand = {},
-						RightLowerArm = {}, RightUpperArm = {}, RightHand = {},
-						LeftLowerLeg = {}, LeftUpperLeg = {}, LeftFoot = {},
-						RightLowerLeg = {}, RightUpperLeg = {}, RightFoot = {}
-					}
-				end
-			elseif PlayerTable.RigType == "R6" then
-				PlayerTable.Chams = {
-					Head = {},
-					Torso = {},
-					["Left Arm"] = {},
-					["Right Arm"] = {},
-					["Left Leg"] = {},
-					["Right Leg"] = {}
-				}
-			end
-
-			for _, v in next, PlayerTable.Chams do
-				for i = 1, 6 do
-					v["Quad"..tostring(i)] = Drawingnew("Quad")
-				end
-			end
-		end
-
-		local OldEntireBody = Environment.Visuals.ChamsSettings.EntireBody
-
-		UpdateRig(); PlayerTable.Connections.Chams = RunService.RenderStepped:Connect(function()
-			for i, v in next, PlayerTable.Chams do
-				UpdateCham(Player.Character:WaitForChild(i, 1 / 0), v)
-			end
-
-			if Environment.Visuals.ChamsSettings.Enabled then
-				if Environment.Visuals.ChamsSettings.EntireBody ~= OldEntireBody then
-					UpdateRig(); OldEntireBody = Environment.Visuals.ChamsSettings.EntireBody
-				end
-			end
-		end)
-	end,
-
-	AddESP = function(Player)
-		local PlayerTable = GetPlayerTable(Player)
-
-		PlayerTable.ESP = Drawingnew("Text")
-
-		PlayerTable.Connections.ESP = RunService.RenderStepped:Connect(function()
-			if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Head") and Environment.Settings.Enabled then
-				local Vector, OnScreen = WorldToViewportPoint(Player.Character.Head.Position)
-
-				PlayerTable.ESP.Visible = Environment.Visuals.ESPSettings.Enabled
-
-				if OnScreen and Environment.Visuals.ESPSettings.Enabled then
-					PlayerTable.ESP.Visible = PlayerTable.Checks.Alive and PlayerTable.Checks.Team and true or false
-
-					if PlayerTable.ESP.Visible then
-						PlayerTable.ESP.Center = true
-						PlayerTable.ESP.Size = Environment.Visuals.ESPSettings.TextSize
-						PlayerTable.ESP.Outline = Environment.Visuals.ESPSettings.Outline
-						PlayerTable.ESP.OutlineColor = Environment.Visuals.ESPSettings.OutlineColor
-						PlayerTable.ESP.Color = Environment.Visuals.ESPSettings.TextColor
-						PlayerTable.ESP.Transparency = Environment.Visuals.ESPSettings.TextTransparency
-						PlayerTable.ESP.Font = Environment.Visuals.ESPSettings.TextFont
-
-						local Parts, Content, Tool = {
-							Health = "("..tostring(mathfloor(Player.Character.Humanoid.Health))..")",
-							Distance = "["..tostring(mathfloor((Player.Character.HumanoidRootPart.Position or Vector3zero - (LocalPlayer.Character.HumanoidRootPart.Position or Vector3zero)).Magnitude)).."]",
-							Name = Player.DisplayName == Player.Name and Player.Name or Player.DisplayName.." {"..Player.Name.."}"
-						}, "", Player.Character:FindFirstChildOfClass("Tool")
-
-						if Environment.Visuals.ESPSettings.DisplayName then
-							Content = Parts.Name..Content
-						end
-
-						if Environment.Visuals.ESPSettings.DisplayHealth then
-							Content = Parts.Health..(Environment.Visuals.ESPSettings.DisplayName and " " or "")..Content
-						end
-
-						if Environment.Visuals.ESPSettings.DisplayDistance then
-							Content = Content.." "..Parts.Distance
-						end
-
-						PlayerTable.ESP.Text = (Tool and "["..Tool.Name.."]\n" or "")..Content
-						PlayerTable.ESP.Position = Vector2new(Vector.X, Vector.Y - Environment.Visuals.ESPSettings.Offset - (Tool and 10 or 0))
-					end
-				else
-					PlayerTable.ESP.Visible = false
-				end
-			else
-				PlayerTable.ESP.Visible = false
-			end
-		end)
-	end,
-
-	AddTracer = function(Player)
-		local PlayerTable = GetPlayerTable(Player)
-
-		PlayerTable.Tracer = Drawingnew("Line")
-
-		PlayerTable.Connections.Tracer = RunService.RenderStepped:Connect(function()
-			if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Head") and Environment.Settings.Enabled then
-				local HRPCFrame, HRPSize = Player.Character.HumanoidRootPart.CFrame, Player.Character.HumanoidRootPart.Size
-				local _3DVector, OnScreen = WorldToViewportPoint(HRPCFrame * CFramenew(0, -HRPSize.Y - 0.5, 0).Position)
-				local _2DVector = WorldToViewportPoint(Player.Character.HumanoidRootPart.Position)
-
-				local HeadOffset = WorldToViewportPoint(Player.Character.Head.Position + Vector3new(0, 0.5, 0))
-				local LegsOffset = WorldToViewportPoint(Player.Character.HumanoidRootPart.Position - Vector3new(0, 1.5, 0))
-
-				if OnScreen and Environment.Visuals.TracersSettings.Enabled then
-					if Environment.Visuals.TracersSettings.Enabled then
-						PlayerTable.Tracer.Visible = PlayerTable.Checks.Alive and PlayerTable.Checks.Team and true or false
-
-						if PlayerTable.Tracer.Visible then
-							PlayerTable.Tracer.Thickness = Environment.Visuals.TracersSettings.Thickness
-							PlayerTable.Tracer.Color = Environment.Visuals.TracersSettings.Color
-							PlayerTable.Tracer.Transparency = Environment.Visuals.TracersSettings.Transparency
-
-							PlayerTable.Tracer.To = Environment.Visuals.BoxSettings.Type == 1 and Vector2new(_3DVector.X, _3DVector.Y) or Vector2new(_2DVector.X, _2DVector.Y - (HeadOffset.Y - LegsOffset.Y) * 0.75)
-
-							if Environment.Visuals.TracersSettings.Type == 1 then
-								PlayerTable.Tracer.From = Vector2new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-							elseif Environment.Visuals.TracersSettings.Type == 2 then
-								PlayerTable.Tracer.From = Vector2new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
-							elseif Environment.Visuals.TracersSettings.Type == 3 then
-								PlayerTable.Tracer.From = Vector2new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)
-							else
-								PlayerTable.Tracer.From = Vector2new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
-							end
-						end
-					end
-				else
-					PlayerTable.Tracer.Visible = false
-				end
-			else
-				PlayerTable.Tracer.Visible = false
-			end
-		end)
-	end,
-
-	AddBox = function(Player)
-		local PlayerTable = GetPlayerTable(Player)
-
-		PlayerTable.Box.Square = Drawingnew("Square")
-
-		PlayerTable.Box.TopLeftLine = Drawingnew("Line")
-		PlayerTable.Box.TopLeftLine = Drawingnew("Line")
-		PlayerTable.Box.TopRightLine = Drawingnew("Line")
-		PlayerTable.Box.BottomLeftLine = Drawingnew("Line")
-		PlayerTable.Box.BottomRightLine = Drawingnew("Line")
-
-		local function Visibility(Bool)
-			if Environment.Visuals.BoxSettings.Type == 1 then
-				PlayerTable.Box.Square.Visible = not Bool
-
-				PlayerTable.Box.TopLeftLine.Visible = Bool
-				PlayerTable.Box.TopRightLine.Visible = Bool
-				PlayerTable.Box.BottomLeftLine.Visible = Bool
-				PlayerTable.Box.BottomRightLine.Visible = Bool
-			elseif Environment.Visuals.BoxSettings.Type == 2 then
-				PlayerTable.Box.Square.Visible = Bool
-
-				PlayerTable.Box.TopLeftLine.Visible = not Bool
-				PlayerTable.Box.TopRightLine.Visible = not Bool
-				PlayerTable.Box.BottomLeftLine.Visible = not Bool
-				PlayerTable.Box.BottomRightLine.Visible = not Bool
-			end
-		end
-
-		local function Visibility2(Bool)
-			PlayerTable.Box.Square.Visible = Bool
-
-			PlayerTable.Box.TopLeftLine.Visible = Bool
-			PlayerTable.Box.TopRightLine.Visible = Bool
-			PlayerTable.Box.BottomLeftLine.Visible = Bool
-			PlayerTable.Box.BottomRightLine.Visible = Bool
-		end
-
-		PlayerTable.Connections.Box = RunService.RenderStepped:Connect(function()
-			if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character:FindFirstChild("Head") and Environment.Settings.Enabled then
-				local Vector, OnScreen = WorldToViewportPoint(Player.Character.HumanoidRootPart.Position)
-
-				Visibility(Environment.Visuals.BoxSettings.Enabled)
-
-				if OnScreen and Environment.Visuals.BoxSettings.Enabled then
-					if PlayerTable.Checks.Alive and PlayerTable.Checks.Team then
-						Visibility(true)
-					else
-						Visibility2(false)
-					end
-
-					local HRPCFrame, HRPSize = Player.Character.HumanoidRootPart.CFrame, Player.Character.HumanoidRootPart.Size * Environment.Visuals.BoxSettings.Increase
-
-					local HeadOffset = WorldToViewportPoint(Player.Character.Head.Position + Vector3new(0, 0.5, 0))
-					local LegsOffset = WorldToViewportPoint(Player.Character.HumanoidRootPart.Position - Vector3new(0, 3, 0))
-
-					local TopLeftPosition = WorldToViewportPoint(HRPCFrame * CFramenew(HRPSize.X, HRPSize.Y, 0).Position)
-					local TopRightPosition = WorldToViewportPoint(HRPCFrame * CFramenew(-HRPSize.X, HRPSize.Y, 0).Position)
-					local BottomLeftPosition = WorldToViewportPoint(HRPCFrame * CFramenew(HRPSize.X, -HRPSize.Y - 0.5, 0).Position)
-					local BottomRightPosition = WorldToViewportPoint(HRPCFrame * CFramenew(-HRPSize.X, -HRPSize.Y - 0.5, 0).Position)
-
-					if PlayerTable.Box.Square.Visible and not PlayerTable.Box.TopLeftLine.Visible and not PlayerTable.Box.TopRightLine.Visible and not PlayerTable.Box.BottomLeftLine.Visible and not PlayerTable.Box.BottomRightLine.Visible then
-						PlayerTable.Box.Square.Thickness = Environment.Visuals.BoxSettings.Thickness
-						PlayerTable.Box.Square.Color = Environment.Visuals.BoxSettings.Color
-						PlayerTable.Box.Square.Transparency = Environment.Visuals.BoxSettings.Transparency
-						PlayerTable.Box.Square.Filled = Environment.Visuals.BoxSettings.Filled
-
-						PlayerTable.Box.Square.Size = Vector2new(2000 / Vector.Z, HeadOffset.Y - LegsOffset.Y)
-						PlayerTable.Box.Square.Position = Vector2new(Vector.X - PlayerTable.Box.Square.Size.X / 2, Vector.Y - PlayerTable.Box.Square.Size.Y / 2)
-					elseif not PlayerTable.Box.Square.Visible and PlayerTable.Box.TopLeftLine.Visible and PlayerTable.Box.TopRightLine.Visible and PlayerTable.Box.BottomLeftLine.Visible and PlayerTable.Box.BottomRightLine.Visible then
-						PlayerTable.Box.TopLeftLine.Thickness = Environment.Visuals.BoxSettings.Thickness
-						PlayerTable.Box.TopLeftLine.Transparency = Environment.Visuals.BoxSettings.Transparency
-						PlayerTable.Box.TopLeftLine.Color = Environment.Visuals.BoxSettings.Color
-
-						PlayerTable.Box.TopRightLine.Thickness = Environment.Visuals.BoxSettings.Thickness
-						PlayerTable.Box.TopRightLine.Transparency = Environment.Visuals.BoxSettings.Transparency
-						PlayerTable.Box.TopRightLine.Color = Environment.Visuals.BoxSettings.Color
-
-						PlayerTable.Box.BottomLeftLine.Thickness = Environment.Visuals.BoxSettings.Thickness
-						PlayerTable.Box.BottomLeftLine.Transparency = Environment.Visuals.BoxSettings.Transparency
-						PlayerTable.Box.BottomLeftLine.Color = Environment.Visuals.BoxSettings.Color
-
-						PlayerTable.Box.BottomRightLine.Thickness = Environment.Visuals.BoxSettings.Thickness
-						PlayerTable.Box.BottomRightLine.Transparency = Environment.Visuals.BoxSettings.Transparency
-						PlayerTable.Box.BottomRightLine.Color = Environment.Visuals.BoxSettings.Color
-
-						PlayerTable.Box.TopLeftLine.From = Vector2new(TopLeftPosition.X, TopLeftPosition.Y)
-						PlayerTable.Box.TopLeftLine.To = Vector2new(TopRightPosition.X, TopRightPosition.Y)
-
-						PlayerTable.Box.TopRightLine.From = Vector2new(TopRightPosition.X, TopRightPosition.Y)
-						PlayerTable.Box.TopRightLine.To = Vector2new(BottomRightPosition.X, BottomRightPosition.Y)
-
-						PlayerTable.Box.BottomLeftLine.From = Vector2new(BottomLeftPosition.X, BottomLeftPosition.Y)
-						PlayerTable.Box.BottomLeftLine.To = Vector2new(TopLeftPosition.X, TopLeftPosition.Y)
-
-						PlayerTable.Box.BottomRightLine.From = Vector2new(BottomRightPosition.X, BottomRightPosition.Y)
-						PlayerTable.Box.BottomRightLine.To = Vector2new(BottomLeftPosition.X, BottomLeftPosition.Y)
-					end
-				else
-					Visibility2(false)
-				end
-			else
-				Visibility2(false)
-			end
-		end)
-	end,
-
-	AddHeadDot = function(Player)
-		local PlayerTable = GetPlayerTable(Player)
-
-		PlayerTable.HeadDot = Drawingnew("Circle")
-
-		PlayerTable.Connections.HeadDot = RunService.RenderStepped:Connect(function()
-			if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") and Player.Character:FindFirstChild("Head") and Environment.Settings.Enabled then
-				local Vector, OnScreen = WorldToViewportPoint(Player.Character.Head.Position)
-
-				PlayerTable.HeadDot.Visible = Environment.Visuals.HeadDotSettings.Enabled
-
-				if OnScreen and Environment.Visuals.HeadDotSettings.Enabled then
-					if Environment.Visuals.HeadDotSettings.Enabled then
-						PlayerTable.HeadDot.Visible = PlayerTable.Checks.Alive and PlayerTable.Checks.Team and true or false
-
-						if PlayerTable.HeadDot.Visible then
-							PlayerTable.HeadDot.Thickness = Environment.Visuals.HeadDotSettings.Thickness
-							PlayerTable.HeadDot.Color = Environment.Visuals.HeadDotSettings.Color
-							PlayerTable.HeadDot.Transparency = Environment.Visuals.HeadDotSettings.Transparency
-							PlayerTable.HeadDot.NumSides = Environment.Visuals.HeadDotSettings.Sides
-							PlayerTable.HeadDot.Filled = Environment.Visuals.HeadDotSettings.Filled
-							PlayerTable.HeadDot.Position = Vector2new(Vector.X, Vector.Y)
-
-							local Top, Bottom = WorldToViewportPoint((Player.Character.Head.CFrame * CFramenew(0, Player.Character.Head.Size.Y / 2, 0)).Position), WorldToViewportPoint((Player.Character.Head.CFrame * CFramenew(0, -Player.Character.Head.Size.Y / 2, 0)).Position)
-							PlayerTable.HeadDot.Radius = mathabs((Top - Bottom).Y) - 3
-						end
-					end
-				else
-					PlayerTable.HeadDot.Visible = false
-				end
-			else
-				PlayerTable.HeadDot.Visible = false
-			end
-		end)
-	end,
-
-	AddHealthBar = function(Player)
-		local PlayerTable = GetPlayerTable(Player)
-
-		PlayerTable.HealthBar.Main = Drawingnew("Square")
-		PlayerTable.HealthBar.Outline = Drawingnew("Square")
-
-		PlayerTable.Connections.HealthBar = RunService.RenderStepped:Connect(function()
-			if Player.Character and Player.Character:FindFirstChildOfClass("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Environment.Settings.Enabled then
-				local Vector, OnScreen = WorldToViewportPoint(Player.Character.HumanoidRootPart.Position)
-
-				local LeftPosition = WorldToViewportPoint(Player.Character.HumanoidRootPart.CFrame * CFramenew(Player.Character.HumanoidRootPart.Size.X, Player.Character.HumanoidRootPart.Size.Y / 2, 0).Position)
-				local RightPosition = WorldToViewportPoint(Player.Character.HumanoidRootPart.CFrame * CFramenew(-Player.Character.HumanoidRootPart.Size.X, Player.Character.HumanoidRootPart.Size.Y / 2, 0).Position)
-
-				PlayerTable.HealthBar.Main.Visible = Environment.Visuals.HealthBarSettings.Enabled
-				PlayerTable.HealthBar.Outline.Visible = Environment.Visuals.HealthBarSettings.Enabled
-
-				if OnScreen and Environment.Visuals.HealthBarSettings.Enabled then
-					if Environment.Visuals.HealthBarSettings.Enabled then
-						local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
-
-						PlayerTable.HealthBar.Main.Visible = PlayerTable.Checks.Alive and PlayerTable.Checks.Team and true or false
-						PlayerTable.HealthBar.Outline.Visible = PlayerTable.HealthBar.Main.Visible
-
-						if PlayerTable.HealthBar.Main.Visible then
-							PlayerTable.HealthBar.Main.Thickness = 1
-							PlayerTable.HealthBar.Main.Color = Color3fromRGB(255 - mathfloor(Humanoid.Health / 100 * 255), mathfloor(Humanoid.Health / 100 * 255), Environment.Visuals.HealthBarSettings.Blue)
-							PlayerTable.HealthBar.Main.Transparency = Environment.Visuals.HealthBarSettings.Transparency
-							PlayerTable.HealthBar.Main.Filled = true
-							PlayerTable.HealthBar.Main.ZIndex = 2
-
-							PlayerTable.HealthBar.Outline.Thickness = 3
-							PlayerTable.HealthBar.Outline.Color = Environment.Visuals.HealthBarSettings.OutlineColor
-							PlayerTable.HealthBar.Outline.Transparency = Environment.Visuals.HealthBarSettings.Transparency
-							PlayerTable.HealthBar.Outline.Filled = false
-							PlayerTable.HealthBar.Main.ZIndex = 1
-
-							if Environment.Visuals.HealthBarSettings.Type == 1 then
-								PlayerTable.HealthBar.Outline.Size = Vector2new(2000 / Vector.Z, Environment.Visuals.HealthBarSettings.Size)
-								PlayerTable.HealthBar.Main.Size = Vector2new(PlayerTable.HealthBar.Outline.Size.X * (Humanoid.Health / 100), PlayerTable.HealthBar.Outline.Size.Y)
-								PlayerTable.HealthBar.Main.Position = Vector2new(Vector.X - PlayerTable.HealthBar.Outline.Size.X / 2, Vector.Y - PlayerTable.HealthBar.Outline.Size.X / 2 - Environment.Visuals.HealthBarSettings.Offset)
-							elseif Environment.Visuals.HealthBarSettings.Type == 2 then
-								PlayerTable.HealthBar.Outline.Size = Vector2new(2000 / Vector.Z, Environment.Visuals.HealthBarSettings.Size)
-								PlayerTable.HealthBar.Main.Size = Vector2new(PlayerTable.HealthBar.Outline.Size.X * (Humanoid.Health / 100), PlayerTable.HealthBar.Outline.Size.Y)
-								PlayerTable.HealthBar.Main.Position = Vector2new(Vector.X - PlayerTable.HealthBar.Outline.Size.X / 2, Vector.Y + PlayerTable.HealthBar.Outline.Size.X / 2 + Environment.Visuals.HealthBarSettings.Offset)
-							elseif Environment.Visuals.HealthBarSettings.Type == 3 then
-								PlayerTable.HealthBar.Outline.Size = Vector2new(Environment.Visuals.HealthBarSettings.Size, 2500 / Vector.Z)
-								PlayerTable.HealthBar.Main.Size = Vector2new(PlayerTable.HealthBar.Outline.Size.X, PlayerTable.HealthBar.Outline.Size.Y * (Humanoid.Health / 100))
-								PlayerTable.HealthBar.Main.Position = Vector2new(LeftPosition.X - Environment.Visuals.HealthBarSettings.Offset, Vector.Y - PlayerTable.HealthBar.Outline.Size.Y / 2)
-							elseif Environment.Visuals.HealthBarSettings.Type == 4 then
-								PlayerTable.HealthBar.Outline.Size = Vector2new(Environment.Visuals.HealthBarSettings.Size, 2500 / Vector.Z)
-								PlayerTable.HealthBar.Main.Size = Vector2new(PlayerTable.HealthBar.Outline.Size.X, PlayerTable.HealthBar.Outline.Size.Y * (Humanoid.Health / 100))
-								PlayerTable.HealthBar.Main.Position = Vector2new(RightPosition.X + Environment.Visuals.HealthBarSettings.Offset, Vector.Y - PlayerTable.HealthBar.Outline.Size.Y / 2)
-							end
-
-							PlayerTable.HealthBar.Outline.Position = PlayerTable.HealthBar.Main.Position
-						end
-					end
-				else
-					PlayerTable.HealthBar.Main.Visible = false
-					PlayerTable.HealthBar.Outline.Visible = false
-				end
-			else
-				PlayerTable.HealthBar.Main.Visible = false
-				PlayerTable.HealthBar.Outline.Visible = false
-			end
-		end)
-	end,
-
-	AddCrosshair = function()
-		local AxisX, AxisY = Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2
-
-		ServiceConnections.AxisConnection = RunService.RenderStepped:Connect(function()
-			if Environment.Crosshair.Settings.Enabled then
-				if Environment.Crosshair.Settings.Type == 1 then
-					AxisX, AxisY = UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y
-				elseif Environment.Crosshair.Settings.Type == 2 then
-					AxisX, AxisY = Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2
-				else
-					Environment.Crosshair.Settings.Type = 1
-				end
-			end
-		end)
-
-		ServiceConnections.CrosshairConnection = RunService.RenderStepped:Connect(function()
-			if Environment.Crosshair.Settings.Enabled then
-
-				--// Left Line
-
-				Environment.Crosshair.Parts.LeftLine.Visible = Environment.Crosshair.Settings.Enabled
-				Environment.Crosshair.Parts.LeftLine.Color = Environment.Crosshair.Settings.Color
-				Environment.Crosshair.Parts.LeftLine.Thickness = Environment.Crosshair.Settings.Thickness
-				Environment.Crosshair.Parts.LeftLine.Transparency = Environment.Crosshair.Settings.Transparency
-
-				Environment.Crosshair.Parts.LeftLine.From = Vector2new(AxisX - (mathcos(mathrad(Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize), AxisY - (mathsin(mathrad(Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize))
-				Environment.Crosshair.Parts.LeftLine.To = Vector2new(AxisX - (mathcos(mathrad(Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)), AxisY - (mathsin(mathrad(Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)))
-
-				--// Right Line
-
-				Environment.Crosshair.Parts.RightLine.Visible = Environment.Crosshair.Settings.Enabled
-				Environment.Crosshair.Parts.RightLine.Color = Environment.Crosshair.Settings.Color
-				Environment.Crosshair.Parts.RightLine.Thickness = Environment.Crosshair.Settings.Thickness
-				Environment.Crosshair.Parts.RightLine.Transparency = Environment.Crosshair.Settings.Transparency
-
-
-				Environment.Crosshair.Parts.RightLine.From = Vector2new(AxisX + (mathcos(mathrad(Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize), AxisY + (mathsin(mathrad(Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize))
-				Environment.Crosshair.Parts.RightLine.To = Vector2new(AxisX + (mathcos(mathrad(Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)), AxisY + (mathsin(mathrad(Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)))
-
-				--// Top Line
-
-				Environment.Crosshair.Parts.TopLine.Visible = Environment.Crosshair.Settings.Enabled
-				Environment.Crosshair.Parts.TopLine.Color = Environment.Crosshair.Settings.Color
-				Environment.Crosshair.Parts.TopLine.Thickness = Environment.Crosshair.Settings.Thickness
-				Environment.Crosshair.Parts.TopLine.Transparency = Environment.Crosshair.Settings.Transparency
-
-				Environment.Crosshair.Parts.TopLine.From = Vector2new(AxisX - (mathsin(mathrad(-Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize), AxisY - (mathcos(mathrad(-Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize))
-				Environment.Crosshair.Parts.TopLine.To = Vector2new(AxisX - (mathsin(mathrad(-Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)), AxisY - (mathcos(mathrad(-Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)))
-
-				--// Bottom Line
-
-				Environment.Crosshair.Parts.BottomLine.Visible = Environment.Crosshair.Settings.Enabled
-				Environment.Crosshair.Parts.BottomLine.Color = Environment.Crosshair.Settings.Color
-				Environment.Crosshair.Parts.BottomLine.Thickness = Environment.Crosshair.Settings.Thickness
-				Environment.Crosshair.Parts.BottomLine.Transparency = Environment.Crosshair.Settings.Transparency
-
-				Environment.Crosshair.Parts.BottomLine.From = Vector2new(AxisX + (mathsin(mathrad(-Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize), AxisY + (mathcos(mathrad(-Environment.Crosshair.Settings.Rotation)) * Environment.Crosshair.Settings.GapSize))
-				Environment.Crosshair.Parts.BottomLine.To = Vector2new(AxisX + (mathsin(mathrad(-Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)), AxisY + (mathcos(mathrad(-Environment.Crosshair.Settings.Rotation)) * (Environment.Crosshair.Settings.Size + Environment.Crosshair.Settings.GapSize)))
-
-				--// Center Dot
-
-				Environment.Crosshair.Parts.CenterDot.Visible = Environment.Crosshair.Settings.Enabled and Environment.Crosshair.Settings.CenterDot
-				Environment.Crosshair.Parts.CenterDot.Color = Environment.Crosshair.Settings.CenterDotColor
-				Environment.Crosshair.Parts.CenterDot.Radius = Environment.Crosshair.Settings.CenterDotSize
-				Environment.Crosshair.Parts.CenterDot.Transparency = Environment.Crosshair.Settings.CenterDotTransparency
-				Environment.Crosshair.Parts.CenterDot.Filled = Environment.Crosshair.Settings.CenterDotFilled
-				Environment.Crosshair.Parts.CenterDot.Thickness = Environment.Crosshair.Settings.CenterDotThickness
-
-				Environment.Crosshair.Parts.CenterDot.Position = Vector2new(AxisX, AxisY)
-			else
-				Environment.Crosshair.Parts.LeftLine.Visible = false
-				Environment.Crosshair.Parts.RightLine.Visible = false
-				Environment.Crosshair.Parts.TopLine.Visible = false
-				Environment.Crosshair.Parts.BottomLine.Visible = false
-				Environment.Crosshair.Parts.CenterDot.Visible = false
-			end
-		end)
-	end
-}
-
---// Functions
-
-local function Wrap(Player)
-	if not GetPlayerTable(Player) then
-		local Table, Value = nil, {Name = Player.Name, Checks = {Alive = true, Team = true}, Connections = {}, ESP = nil, Tracer = nil, HeadDot = nil, HealthBar = {Main = nil, Outline = nil}, Box = {Square = nil, TopLeftLine = nil, TopRightLine = nil, BottomLeftLine = nil, BottomRightLine = nil}, Chams = {}}
-
-		for _, v in next, Environment.WrappedPlayers do
-			if v[1] == Player.Name then
-				Table = v
-			end
-		end
-
-		if not Table then
-			Environment.WrappedPlayers[#Environment.WrappedPlayers + 1] = Value
-			AssignRigType(Player)
-			InitChecks(Player)
-
-			Visuals.AddChams(Player)
-			Visuals.AddESP(Player)
-			Visuals.AddTracer(Player)
-			Visuals.AddBox(Player)
-			Visuals.AddHeadDot(Player)
-			Visuals.AddHealthBar(Player)
-		end
-	end
-end
-
-local function UnWrap(Player)
-	local Table, Index = nil, nil
-
-	for i, v in next, Environment.WrappedPlayers do
-		if v.Name == Player.Name then
-			Table, Index = v, i
-		end
-	end
-
-	if Table then
-		for _, v in next, Table.Connections do
-			v:Disconnect()
-		end
-
-		pcall(function()
-			Table.ESP:Remove()
-			Table.Tracer:Remove()
-			Table.HeadDot:Remove()
-			Table.HealthBar.Main:Remove()
-			Table.HealthBar.Outline:Remove()
-		end)
-
-		for _, v in next, Table.Box do
-			if not v.Remove then
-				continue
-			else
-				v:Remove()
-			end
-		end
-
-		for _, v in next, Table.Chams do
-			for _, v2 in next, v do
-				if not v2.Remove then
-					continue
-				else
-					v2:Remove()
-				end
-			end
-		end
-
-		Environment.WrappedPlayers[Index] = nil
-	end
-end
-
-local function Load()
-	Visuals.AddCrosshair()
-
-	ServiceConnections.PlayerAddedConnection = Players.PlayerAdded:Connect(Wrap)
-	ServiceConnections.PlayerRemovingConnection = Players.PlayerRemoving:Connect(UnWrap)
-
-	ServiceConnections.ReWrapPlayers = RunService.RenderStepped:Connect(function()
-		for _, v in next, Players:GetPlayers() do
-			if v ~= LocalPlayer then
-				Wrap(v)
-			end
-		end
-
-		wait(30)
-	end)
-end
-
---// Functions
-
-Environment.Functions = {}
-
-function Environment.Functions:Exit()
-	for _, v in next, ServiceConnections do
-		v:Disconnect()
-	end
-
-	for _, v in next, Environment.Crosshair.Parts do
-		v:Remove()
-	end
-
-	for _, v in next, Players:GetPlayers() do
-		if v ~= LocalPlayer then
-			UnWrap(v)
-		end
-	end
-
-	getgenv().AirHub.WallHack.Functions = nil
-	getgenv().AirHub.WallHack = nil
-
-	Load = nil; GetPlayerTable = nil; AssignRigType = nil; InitChecks = nil; UpdateCham = nil; Visuals = nil; Wrap = nil; UnWrap = nil
-end
-
-function Environment.Functions:Restart()
-	for _, v in next, Players:GetPlayers() do
-		if v ~= LocalPlayer then
-			UnWrap(v)
-		end
-	end
-
-	for _, v in next, ServiceConnections do
-		v:Disconnect()
-	end
-
-	Load()
-end
-
-function Environment.Functions:ResetSettings()
-	Environment.Visuals = {
-		ChamsSettings = {
-			Enabled = false,
-			Color = Color3fromRGB(255, 255, 255),
-			Transparency = 0.2,
-			Thickness = 0,
-			Filled = true,
-			EntireBody = false -- For R15, keep false to prevent lag
-		},
-
-		ESPSettings = {
-			Enabled = true,
-			TextColor = Color3fromRGB(255, 255, 255),
-			TextSize = 14,
-			Center = true,
-			Outline = true,
-			OutlineColor = Color3fromRGB(0, 0, 0),
-			TextTransparency = 0.7,
-			TextFont = Drawing.Fonts.UI, -- UI, System, Plex, Monospace
-			DisplayDistance = true,
-			DisplayHealth = true,
-			DisplayName = true
-		},
-
-		TracersSettings = {
-			Enabled = true,
-			Type = 1, -- 1 - Bottom; 2 - Center; 3 - Mouse
-			Transparency = 0.7,
-			Thickness = 1,
-			Color = Color3fromRGB(255, 255, 255)
-		},
-
-		BoxSettings = {
-			Enabled = true,
-			Type = 1; -- 1 - 3D; 2 - 2D
-			Color = Color3fromRGB(255, 255, 255),
-			Transparency = 0.7,
-			Thickness = 1,
-			Filled = false, -- For 2D
-			Increase = 1
-		},
-
-		HeadDotSettings = {
-			Enabled = true,
-			Color = Color3fromRGB(255, 255, 255),
-			Transparency = 0.5,
-			Thickness = 1,
-			Filled = true,
-			Sides = 30
-		},
-
-		HealthBarSettings = {
-			Enabled = false,
-			Transparency = 0.8,
-			Size = 2,
-			Offset = 10,
-			OutlineColor = Color3fromRGB(0, 0, 0),
-			Blue = 50,
-			Type = 3 -- 1 - Top; 2 - Bottom; 3 - Left; 4 - Right
-		}
-	}
-
-	Environment.Crosshair.Settings = {
-		Enabled = false,
-		Type = 1, -- 1 - Mouse; 2 - Center
-		Size = 12,
-		Thickness = 1,
-		Color = Color3fromRGB(0, 255, 0),
-		Transparency = 1,
-		GapSize = 5,
-		CenterDot = false,
-		CenterDotColor = Color3fromRGB(0, 255, 0),
-		CenterDotSize = 1,
-		CenterDotTransparency = 1,
-		CenterDotFilled = true,
-		CenterDotThickness = 1
-	}
-
-	Environment.Settings = {
-		Enabled = false,
-		TeamCheck = false,
-		AliveCheck = true
-	}
-end
-
-setmetatable(Environment.Functions, {
-	__newindex = warn
-})
-
---// Main
-
-Load()
---[[
-
-	AirHub by Exunys © CC0 1.0 Universal (2023)
-
-	https://github.com/Exunys
-
-]]
-
---// Cache
-
-local loadstring, getgenv, setclipboard, tablefind, UserInputService = loadstring, getgenv, setclipboard, table.find, game:GetService("UserInputService")
-
---// Loaded check
-
-if AirHub or AirHubV2Loaded then
-    return
-end
-
---// Environment
-
-getgenv().AirHub = {}
-
---// Load Modules
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/AirHub/main/Modules/Aimbot.lua"))()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/AirHub/main/Modules/Wall%20Hack.lua"))()
-
---// Variables
-
-local Library = loadstring(game:GetObjects("rbxassetid://7657867786")[1].Source)() -- Pepsi's UI Library
-local Aimbot, WallHack = getgenv().AirHub.Aimbot, getgenv().AirHub.WallHack
-local Parts, Fonts, TracersType = {"Head", "HumanoidRootPart", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LeftUpperArm", "RightUpperArm", "LeftFoot", "LeftLowerLeg", "UpperTorso", "LeftUpperLeg", "RightFoot", "RightLowerLeg", "LowerTorso", "RightUpperLeg"}, {"UI", "System", "Plex", "Monospace"}, {"Bottom", "Center", "Mouse"}
-
---// Frame
-
-Library.UnloadCallback = function()
-	Aimbot.Functions:Exit()
-	WallHack.Functions:Exit()
-	getgenv().AirHub = nil
-end
-
-local MainFrame = Library:CreateWindow({
-	Name = "AirHub",
-	Themeable = {
-		Image = "7059346386",
-		Info = "Made by Exunys\nPowered by Pepsi's UI Library",
-		Credit = false
-	},
-	Background = "",
-	Theme = [[{"__Designer.Colors.topGradient":"3F0C64","__Designer.Colors.section":"C259FB","__Designer.Colors.hoveredOptionBottom":"4819B4","__Designer.Background.ImageAssetID":"rbxassetid://4427304036","__Designer.Colors.selectedOption":"4E149C","__Designer.Colors.unselectedOption":"482271","__Designer.Files.WorkspaceFile":"AirHub","__Designer.Colors.unhoveredOptionTop":"310269","__Designer.Colors.outerBorder":"391D57","__Designer.Background.ImageColor":"69009C","__Designer.Colors.tabText":"B9B9B9","__Designer.Colors.elementBorder":"160B24","__Designer.Background.ImageTransparency":100,"__Designer.Colors.background":"1E1237","__Designer.Colors.innerBorder":"531E79","__Designer.Colors.bottomGradient":"361A60","__Designer.Colors.sectionBackground":"21002C","__Designer.Colors.hoveredOptionTop":"6B10F9","__Designer.Colors.otherElementText":"7B44A8","__Designer.Colors.main":"AB26FF","__Designer.Colors.elementText":"9F7DB5","__Designer.Colors.unhoveredOptionBottom":"3E0088","__Designer.Background.UseBackgroundImage":false}]]
-})
-
---// Tabs
-
-local AimbotTab = MainFrame:CreateTab({
-	Name = "Aimbot"
-})
-
-local VisualsTab = MainFrame:CreateTab({
-	Name = "Visuals"
-})
-
-local CrosshairTab = MainFrame:CreateTab({
-	Name = "Crosshair"
-})
-
-local FunctionsTab = MainFrame:CreateTab({
-	Name = "Functions"
-})
-
---// Aimbot Sections
-
-local Values = AimbotTab:CreateSection({
-	Name = "Values"
-})
-
-local Checks = AimbotTab:CreateSection({
-	Name = "Checks"
-})
-
-local ThirdPerson = AimbotTab:CreateSection({
-	Name = "Third Person"
-})
-
-local FOV_Values = AimbotTab:CreateSection({
-	Name = "Field Of View",
-	Side = "Right"
-})
-
-local FOV_Appearance = AimbotTab:CreateSection({
-	Name = "FOV Circle Appearance",
-	Side = "Right"
-})
-
---// Visuals Sections
-
-local WallHackChecks = VisualsTab:CreateSection({
-	Name = "Checks"
-})
-
-local ESPSettings = VisualsTab:CreateSection({
-	Name = "ESP Settings"
-})
-
-local BoxesSettings = VisualsTab:CreateSection({
-	Name = "Boxes Settings"
-})
-
-local ChamsSettings = VisualsTab:CreateSection({
-	Name = "Chams Settings"
-})
-
-local TracersSettings = VisualsTab:CreateSection({
-	Name = "Tracers Settings",
-	Side = "Right"
-})
-
-local HeadDotsSettings = VisualsTab:CreateSection({
-	Name = "Head Dots Settings",
-	Side = "Right"
-})
-
-local HealthBarSettings = VisualsTab:CreateSection({
-	Name = "Health Bar Settings",
-	Side = "Right"
-})
-
---// Crosshair Sections
-
-local CrosshairSettings = CrosshairTab:CreateSection({
-	Name = "Settings"
-})
-
-local CrosshairSettings_CenterDot = CrosshairTab:CreateSection({
-	Name = "Center Dot Settings",
-	Side = "Right"
-})
-
---// Functions Sections
-
-local FunctionsSection = FunctionsTab:CreateSection({
-	Name = "Functions"
-})
-
---// Aimbot Values
-
-Values:AddToggle({
-	Name = "Enabled",
-	Value = Aimbot.Settings.Enabled,
-	Callback = function(New, Old)
-		Aimbot.Settings.Enabled = New
-	end
-}).Default = Aimbot.Settings.Enabled
-
-Values:AddToggle({
-	Name = "Toggle",
-	Value = Aimbot.Settings.Toggle,
-	Callback = function(New, Old)
-		Aimbot.Settings.Toggle = New
-	end
-}).Default = Aimbot.Settings.Toggle
-
-Aimbot.Settings.LockPart = Parts[1]; Values:AddDropdown({
-	Name = "Lock Part",
-	Value = Parts[1],
-	Callback = function(New, Old)
-		Aimbot.Settings.LockPart = New
-	end,
-	List = Parts,
-	Nothing = "Head"
-}).Default = Parts[1]
-
-Values:AddTextbox({ -- Using a Textbox instead of a Keybind because the UI Library doesn't support Mouse inputs like Left Click / Right Click...
-	Name = "Hotkey",
-	Value = Aimbot.Settings.TriggerKey,
-	Callback = function(New, Old)
-		Aimbot.Settings.TriggerKey = New
-	end
-}).Default = Aimbot.Settings.TriggerKey
-
---[[
-Values:AddKeybind({
-	Name = "Hotkey",
-	Value = Aimbot.Settings.TriggerKey,
-	Callback = function(New, Old)
-		Aimbot.Settings.TriggerKey = stringmatch(tostring(New), "Enum%.[UserInputType]*[KeyCode]*%.(.+)")
-	end,
-}).Default = Aimbot.Settings.TriggerKey
-]]
-
-Values:AddSlider({
-	Name = "Sensitivity",
-	Value = Aimbot.Settings.Sensitivity,
-	Callback = function(New, Old)
-		Aimbot.Settings.Sensitivity = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = Aimbot.Settings.Sensitivity
-
---// Aimbot Checks
-
-Checks:AddToggle({
-	Name = "Team Check",
-	Value = Aimbot.Settings.TeamCheck,
-	Callback = function(New, Old)
-		Aimbot.Settings.TeamCheck = New
-	end
-}).Default = Aimbot.Settings.TeamCheck
-
-Checks:AddToggle({
-	Name = "Wall Check",
-	Value = Aimbot.Settings.WallCheck,
-	Callback = function(New, Old)
-		Aimbot.Settings.WallCheck = New
-	end
-}).Default = Aimbot.Settings.WallCheck
-
-Checks:AddToggle({
-	Name = "Alive Check",
-	Value = Aimbot.Settings.AliveCheck,
-	Callback = function(New, Old)
-		Aimbot.Settings.AliveCheck = New
-	end
-}).Default = Aimbot.Settings.AliveCheck
-
---// Aimbot ThirdPerson
-
-ThirdPerson:AddToggle({
-	Name = "Enable Third Person",
-	Value = Aimbot.Settings.ThirdPerson,
-	Callback = function(New, Old)
-		Aimbot.Settings.ThirdPerson = New
-	end
-}).Default = Aimbot.Settings.ThirdPerson
-
-ThirdPerson:AddSlider({
-	Name = "Sensitivity",
-	Value = Aimbot.Settings.ThirdPersonSensitivity,
-	Callback = function(New, Old)
-		Aimbot.Settings.ThirdPersonSensitivity = New
-	end,
-	Min = 0.1,
-	Max = 5,
-	Decimals = 1
-}).Default = Aimbot.Settings.ThirdPersonSensitivity
-
---// FOV Settings Values
-
-FOV_Values:AddToggle({
-	Name = "Enabled",
-	Value = Aimbot.FOVSettings.Enabled,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Enabled = New
-	end
-}).Default = Aimbot.FOVSettings.Enabled
-
-FOV_Values:AddToggle({
-	Name = "Visible",
-	Value = Aimbot.FOVSettings.Visible,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Visible = New
-	end
-}).Default = Aimbot.FOVSettings.Visible
-
-FOV_Values:AddSlider({
-	Name = "Amount",
-	Value = Aimbot.FOVSettings.Amount,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Amount = New
-	end,
-	Min = 10,
-	Max = 300
-}).Default = Aimbot.FOVSettings.Amount
-
---// FOV Settings Appearance
-
-FOV_Appearance:AddToggle({
-	Name = "Filled",
-	Value = Aimbot.FOVSettings.Filled,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Filled = New
-	end
-}).Default = Aimbot.FOVSettings.Filled
-
-FOV_Appearance:AddSlider({
-	Name = "Transparency",
-	Value = Aimbot.FOVSettings.Transparency,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimal = 1
-}).Default = Aimbot.FOVSettings.Transparency
-
-FOV_Appearance:AddSlider({
-	Name = "Sides",
-	Value = Aimbot.FOVSettings.Sides,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Sides = New
-	end,
-	Min = 3,
-	Max = 60
-}).Default = Aimbot.FOVSettings.Sides
-
-FOV_Appearance:AddSlider({
-	Name = "Thickness",
-	Value = Aimbot.FOVSettings.Thickness,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Thickness = New
-	end,
-	Min = 1,
-	Max = 50
-}).Default = Aimbot.FOVSettings.Thickness
-
-FOV_Appearance:AddColorpicker({
-	Name = "Color",
-	Value = Aimbot.FOVSettings.Color,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.Color = New
-	end
-}).Default = Aimbot.FOVSettings.Color
-
-FOV_Appearance:AddColorpicker({
-	Name = "Locked Color",
-	Value = Aimbot.FOVSettings.LockedColor,
-	Callback = function(New, Old)
-		Aimbot.FOVSettings.LockedColor = New
-	end
-}).Default = Aimbot.FOVSettings.LockedColor
-
---// Wall Hack Settings
-
-WallHackChecks:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Settings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Settings.Enabled = New
-	end
-}).Default = WallHack.Settings.Enabled
-
-WallHackChecks:AddToggle({
-	Name = "Team Check",
-	Value = WallHack.Settings.TeamCheck,
-	Callback = function(New, Old)
-		WallHack.Settings.TeamCheck = New
-	end
-}).Default = WallHack.Settings.TeamCheck
-
-WallHackChecks:AddToggle({
-	Name = "Alive Check",
-	Value = WallHack.Settings.AliveCheck,
-	Callback = function(New, Old)
-		WallHack.Settings.AliveCheck = New
-	end
-}).Default = WallHack.Settings.AliveCheck
-
---// Visuals Settings
-
-ESPSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Visuals.ESPSettings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.Enabled = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.Enabled
-
-ESPSettings:AddToggle({
-	Name = "Outline",
-	Value = WallHack.Visuals.ESPSettings.Outline,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.Outline = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.Outline
-
-ESPSettings:AddToggle({
-	Name = "Display Distance",
-	Value = WallHack.Visuals.ESPSettings.DisplayDistance,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.DisplayDistance = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.DisplayDistance
-
-ESPSettings:AddToggle({
-	Name = "Display Health",
-	Value = WallHack.Visuals.ESPSettings.DisplayHealth,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.DisplayHealth = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.DisplayHealth
-
-ESPSettings:AddToggle({
-	Name = "Display Name",
-	Value = WallHack.Visuals.ESPSettings.DisplayName,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.DisplayName = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.DisplayName
-
-ESPSettings:AddSlider({
-	Name = "Offset",
-	Value = WallHack.Visuals.ESPSettings.Offset,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.Offset = New
-	end,
-	Min = -30,
-	Max = 30
-}).Default = WallHack.Visuals.ESPSettings.Offset
-
-ESPSettings:AddColorpicker({
-	Name = "Text Color",
-	Value = WallHack.Visuals.ESPSettings.TextColor,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.TextColor = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.TextColor
-
-ESPSettings:AddColorpicker({
-	Name = "Outline Color",
-	Value = WallHack.Visuals.ESPSettings.OutlineColor,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.OutlineColor = New
-	end
-}).Default = WallHack.Visuals.ESPSettings.OutlineColor
-
-ESPSettings:AddSlider({
-	Name = "Text Transparency",
-	Value = WallHack.Visuals.ESPSettings.TextTransparency,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.TextTransparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Visuals.ESPSettings.TextTransparency
-
-ESPSettings:AddSlider({
-	Name = "Text Size",
-	Value = WallHack.Visuals.ESPSettings.TextSize,
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.TextSize = New
-	end,
-	Min = 8,
-	Max = 24
-}).Default = WallHack.Visuals.ESPSettings.TextSize
-
-ESPSettings:AddDropdown({
-	Name = "Text Font",
-	Value = Fonts[WallHack.Visuals.ESPSettings.TextFont + 1],
-	Callback = function(New, Old)
-		WallHack.Visuals.ESPSettings.TextFont = Drawing.Fonts[New]
-	end,
-	List = Fonts,
-	Nothing = "UI"
-}).Default = Fonts[WallHack.Visuals.ESPSettings.TextFont + 1]
-
-BoxesSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Visuals.BoxSettings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Enabled = New
-	end
-}).Default = WallHack.Visuals.BoxSettings.Enabled
-
-BoxesSettings:AddSlider({
-	Name = "Transparency",
-	Value = WallHack.Visuals.BoxSettings.Transparency,
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Visuals.BoxSettings.Transparency
-
-BoxesSettings:AddSlider({
-	Name = "Thickness",
-	Value = WallHack.Visuals.BoxSettings.Thickness,
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Thickness = New
-	end,
-	Min = 1,
-	Max = 5
-}).Default = WallHack.Visuals.BoxSettings.Thickness
-
-BoxesSettings:AddSlider({
-	Name = "Scale Increase (For 3D)",
-	Value = WallHack.Visuals.BoxSettings.Increase,
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Increase = New
-	end,
-	Min = 1,
-	Max = 5
-}).Default = WallHack.Visuals.BoxSettings.Increase
-
-BoxesSettings:AddColorpicker({
-	Name = "Color",
-	Value = WallHack.Visuals.BoxSettings.Color,
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Color = New
-	end
-}).Default = WallHack.Visuals.BoxSettings.Color
-
-BoxesSettings:AddDropdown({
-	Name = "Type",
-	Value = WallHack.Visuals.BoxSettings.Type == 1 and "3D" or "2D",
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Type = New == "3D" and 1 or 2
-	end,
-	List = {"3D", "2D"},
-	Nothing = "3D"
-}).Default = WallHack.Visuals.BoxSettings.Type == 1 and "3D" or "2D"
-
-BoxesSettings:AddToggle({
-	Name = "Filled (2D Square)",
-	Value = WallHack.Visuals.BoxSettings.Filled,
-	Callback = function(New, Old)
-		WallHack.Visuals.BoxSettings.Filled = New
-	end
-}).Default = WallHack.Visuals.BoxSettings.Filled
-
-ChamsSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Visuals.ChamsSettings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Visuals.ChamsSettings.Enabled = New
-	end
-}).Default = WallHack.Visuals.ChamsSettings.Enabled
-
-ChamsSettings:AddToggle({
-	Name = "Filled",
-	Value = WallHack.Visuals.ChamsSettings.Filled,
-	Callback = function(New, Old)
-		WallHack.Visuals.ChamsSettings.Filled = New
-	end
-}).Default = WallHack.Visuals.ChamsSettings.Filled
-
-ChamsSettings:AddToggle({
-	Name = "Entire Body (For R15 Rigs)",
-	Value = WallHack.Visuals.ChamsSettings.EntireBody,
-	Callback = function(New, Old)
-		WallHack.Visuals.ChamsSettings.EntireBody = New
-	end
-}).Default = WallHack.Visuals.ChamsSettings.EntireBody
-
-ChamsSettings:AddSlider({
-	Name = "Transparency",
-	Value = WallHack.Visuals.ChamsSettings.Transparency,
-	Callback = function(New, Old)
-		WallHack.Visuals.ChamsSettings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Visuals.ChamsSettings.Transparency
-
-ChamsSettings:AddSlider({
-	Name = "Thickness",
-	Value = WallHack.Visuals.ChamsSettings.Thickness,
-	Callback = function(New, Old)
-		WallHack.Visuals.ChamsSettings.Thickness = New
-	end,
-	Min = 0,
-	Max = 3
-}).Default = WallHack.Visuals.ChamsSettings.Thickness
-
-ChamsSettings:AddColorpicker({
-	Name = "Color",
-	Value = WallHack.Visuals.ChamsSettings.Color,
-	Callback = function(New, Old)
-		WallHack.Visuals.ChamsSettings.Color = New
-	end
-}).Default = WallHack.Visuals.ChamsSettings.Color
-
-TracersSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Visuals.TracersSettings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Visuals.TracersSettings.Enabled = New
-	end
-}).Default = WallHack.Visuals.TracersSettings.Enabled
-
-TracersSettings:AddSlider({
-	Name = "Transparency",
-	Value = WallHack.Visuals.TracersSettings.Transparency,
-	Callback = function(New, Old)
-		WallHack.Visuals.TracersSettings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Visuals.TracersSettings.Transparency
-
-TracersSettings:AddSlider({
-	Name = "Thickness",
-	Value = WallHack.Visuals.TracersSettings.Thickness,
-	Callback = function(New, Old)
-		WallHack.Visuals.TracersSettings.Thickness = New
-	end,
-	Min = 1,
-	Max = 5
-}).Default = WallHack.Visuals.TracersSettings.Thickness
-
-TracersSettings:AddColorpicker({
-	Name = "Color",
-	Value = WallHack.Visuals.TracersSettings.Color,
-	Callback = function(New, Old)
-		WallHack.Visuals.TracersSettings.Color = New
-	end
-}).Default = WallHack.Visuals.TracersSettings.Color
-
-TracersSettings:AddDropdown({
-	Name = "Start From",
-	Value = TracersType[WallHack.Visuals.TracersSettings.Type],
-	Callback = function(New, Old)
-		WallHack.Visuals.TracersSettings.Type = tablefind(TracersType, New)
-	end,
-	List = TracersType,
-	Nothing = "Bottom"
-}).Default = Fonts[WallHack.Visuals.TracersSettings.Type + 1]
-
-HeadDotsSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Visuals.HeadDotSettings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Visuals.HeadDotSettings.Enabled = New
-	end
-}).Default = WallHack.Visuals.HeadDotSettings.Enabled
-
-HeadDotsSettings:AddToggle({
-	Name = "Filled",
-	Value = WallHack.Visuals.HeadDotSettings.Filled,
-	Callback = function(New, Old)
-		WallHack.Visuals.HeadDotSettings.Filled = New
-	end
-}).Default = WallHack.Visuals.HeadDotSettings.Filled
-
-HeadDotsSettings:AddSlider({
-	Name = "Transparency",
-	Value = WallHack.Visuals.HeadDotSettings.Transparency,
-	Callback = function(New, Old)
-		WallHack.Visuals.HeadDotSettings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Visuals.HeadDotSettings.Transparency
-
-HeadDotsSettings:AddSlider({
-	Name = "Thickness",
-	Value = WallHack.Visuals.HeadDotSettings.Thickness,
-	Callback = function(New, Old)
-		WallHack.Visuals.HeadDotSettings.Thickness = New
-	end,
-	Min = 1,
-	Max = 5
-}).Default = WallHack.Visuals.HeadDotSettings.Thickness
-
-HeadDotsSettings:AddSlider({
-	Name = "Sides",
-	Value = WallHack.Visuals.HeadDotSettings.Sides,
-	Callback = function(New, Old)
-		WallHack.Visuals.HeadDotSettings.Sides = New
-	end,
-	Min = 3,
-	Max = 60
-}).Default = WallHack.Visuals.HeadDotSettings.Sides
-
-HeadDotsSettings:AddColorpicker({
-	Name = "Color",
-	Value = WallHack.Visuals.HeadDotSettings.Color,
-	Callback = function(New, Old)
-		WallHack.Visuals.HeadDotSettings.Color = New
-	end
-}).Default = WallHack.Visuals.HeadDotSettings.Color
-
-HealthBarSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Visuals.HealthBarSettings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.Enabled = New
-	end
-}).Default = WallHack.Visuals.HealthBarSettings.Enabled
-
-HealthBarSettings:AddDropdown({
-	Name = "Position",
-	Value = WallHack.Visuals.HealthBarSettings.Type == 1 and "Top" or WallHack.Visuals.HealthBarSettings.Type == 2 and "Bottom" or WallHack.Visuals.HealthBarSettings.Type == 3 and "Left" or "Right",
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.Type = New == "Top" and 1 or New == "Bottom" and 2 or New == "Left" and 3 or 4
-	end,
-	List = {"Top", "Bottom", "Left", "Right"},
-	Nothing = "Left"
-}).Default = WallHack.Visuals.HealthBarSettings.Type == 1 and "Top" or WallHack.Visuals.HealthBarSettings.Type == 2 and "Bottom" or WallHack.Visuals.HealthBarSettings.Type == 3 and "Left" or "Right"
-
-HealthBarSettings:AddSlider({
-	Name = "Transparency",
-	Value = WallHack.Visuals.HealthBarSettings.Transparency,
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Visuals.HealthBarSettings.Transparency
-
-HealthBarSettings:AddSlider({
-	Name = "Size",
-	Value = WallHack.Visuals.HealthBarSettings.Size,
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.Size = New
-	end,
-	Min = 2,
-	Max = 10
-}).Default = WallHack.Visuals.HealthBarSettings.Size
-
-HealthBarSettings:AddSlider({
-	Name = "Blue",
-	Value = WallHack.Visuals.HealthBarSettings.Blue,
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.Blue = New
-	end,
-	Min = 0,
-	Max = 255
-}).Default = WallHack.Visuals.HealthBarSettings.Blue
-
-HealthBarSettings:AddSlider({
-	Name = "Offset",
-	Value = WallHack.Visuals.HealthBarSettings.Offset,
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.Offset = New
-	end,
-	Min = -30,
-	Max = 30
-}).Default = WallHack.Visuals.HealthBarSettings.Offset
-
-HealthBarSettings:AddColorpicker({
-	Name = "Outline Color",
-	Value = WallHack.Visuals.HealthBarSettings.OutlineColor,
-	Callback = function(New, Old)
-		WallHack.Visuals.HealthBarSettings.OutlineColor = New
-	end
-}).Default = WallHack.Visuals.HealthBarSettings.OutlineColor
-
---// Crosshair Settings
-
-CrosshairSettings:AddToggle({
-	Name = "Mouse Cursor",
-	Value = UserInputService.MouseIconEnabled,
-	Callback = function(New, Old)
-		UserInputService.MouseIconEnabled = New
-	end
-}).Default = UserInputService.MouseIconEnabled
-
-CrosshairSettings:AddToggle({
-	Name = "Enabled",
-	Value = WallHack.Crosshair.Settings.Enabled,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Enabled = New
-	end
-}).Default = WallHack.Crosshair.Settings.Enabled
-
-CrosshairSettings:AddColorpicker({
-	Name = "Color",
-	Value = WallHack.Crosshair.Settings.Color,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Color = New
-	end
-}).Default = WallHack.Crosshair.Settings.Color
-
-CrosshairSettings:AddSlider({
-	Name = "Transparency",
-	Value = WallHack.Crosshair.Settings.Transparency,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Transparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Crosshair.Settings.Transparency
-
-CrosshairSettings:AddSlider({
-	Name = "Size",
-	Value = WallHack.Crosshair.Settings.Size,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Size = New
-	end,
-	Min = 8,
-	Max = 24
-}).Default = WallHack.Crosshair.Settings.Size
-
-CrosshairSettings:AddSlider({
-	Name = "Thickness",
-	Value = WallHack.Crosshair.Settings.Thickness,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Thickness = New
-	end,
-	Min = 1,
-	Max = 5
-}).Default = WallHack.Crosshair.Settings.Thickness
-
-CrosshairSettings:AddSlider({
-	Name = "Gap Size",
-	Value = WallHack.Crosshair.Settings.GapSize,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.GapSize = New
-	end,
-	Min = 0,
-	Max = 20
-}).Default = WallHack.Crosshair.Settings.GapSize
-
-CrosshairSettings:AddSlider({
-	Name = "Rotation (Degrees)",
-	Value = WallHack.Crosshair.Settings.Rotation,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Rotation = New
-	end,
-	Min = -180,
-	Max = 180
-}).Default = WallHack.Crosshair.Settings.Rotation
-
-CrosshairSettings:AddDropdown({
-	Name = "Position",
-	Value = WallHack.Crosshair.Settings.Type == 1 and "Mouse" or "Center",
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.Type = New == "Mouse" and 1 or 2
-	end,
-	List = {"Mouse", "Center"},
-	Nothing = "Mouse"
-}).Default = WallHack.Crosshair.Settings.Type == 1 and "Mouse" or "Center"
-
-CrosshairSettings_CenterDot:AddToggle({
-	Name = "Center Dot",
-	Value = WallHack.Crosshair.Settings.CenterDot,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.CenterDot = New
-	end
-}).Default = WallHack.Crosshair.Settings.CenterDot
-
-CrosshairSettings_CenterDot:AddColorpicker({
-	Name = "Center Dot Color",
-	Value = WallHack.Crosshair.Settings.CenterDotColor,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.CenterDotColor = New
-	end
-}).Default = WallHack.Crosshair.Settings.CenterDotColor
-
-CrosshairSettings_CenterDot:AddSlider({
-	Name = "Center Dot Size",
-	Value = WallHack.Crosshair.Settings.CenterDotSize,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.CenterDotSize = New
-	end,
-	Min = 1,
-	Max = 6
-}).Default = WallHack.Crosshair.Settings.CenterDotSize
-
-CrosshairSettings_CenterDot:AddSlider({
-	Name = "Center Dot Transparency",
-	Value = WallHack.Crosshair.Settings.CenterDotTransparency,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.CenterDotTransparency = New
-	end,
-	Min = 0,
-	Max = 1,
-	Decimals = 2
-}).Default = WallHack.Crosshair.Settings.CenterDotTransparency
-
-CrosshairSettings_CenterDot:AddToggle({
-	Name = "Center Dot Filled",
-	Value = WallHack.Crosshair.Settings.CenterDotFilled,
-	Callback = function(New, Old)
-		WallHack.Crosshair.Settings.CenterDotFilled = New
-	end
-}).Default = WallHack.Crosshair.Settings.CenterDotFilled
-
---// Functions / Functions
-
-FunctionsSection:AddButton({
-	Name = "Reset Settings",
-	Callback = function()
-		Aimbot.Functions:ResetSettings()
-		WallHack.Functions:ResetSettings()
-		Library.ResetAll()
-	end
-})
-
-FunctionsSection:AddButton({
-	Name = "Restart",
-	Callback = function()
-		Aimbot.Functions:Restart()
-		WallHack.Functions:Restart()
-	end
-})
-
-FunctionsSection:AddButton({
-	Name = "Exit",
-	Callback = Library.Unload,
-})
-
-FunctionsSection:AddButton({
-	Name = "Copy Script Page",
-	Callback = function()
-		setclipboard("https://github.com/Exunys/AirHub")
-	end
-})
-
---// AirHub V2 Prompt
+local Spinning = false
+local Triggering = false
+local ShowingFoV = false
+local ShowingESP = false
 
 do
-	local Aux = Instance.new("BindableFunction")
-    
-	Aux.OnInvoke = function(Answer)
-		if Answer == "No" then
-			return
-		end
-
-		Library.Unload()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/Exunys/AirHub-V2/main/src/Main.lua"))()
-	end
-
-	game.StarterGui:SetCore("SendNotification", {
-		Title = "🎆  AirHub V2  🎆",
-		Text = "Would you like to use the new AirHub V2 script?",
-		Button1 = "Yes",
-		Button2 = "No",
-		Duration = 1 / 0,
-		Icon = "rbxassetid://6238537240",
-		Callback = Aux
-	})
+    if typeof(script) == "Instance" and script:FindFirstChild("Fluent") and script:FindFirstChild("Fluent"):IsA("ModuleScript") then
+        Fluent = require(script:FindFirstChild("Fluent"))
+    else
+        local Success, Result = pcall(function()
+            return game:HttpGet("https://twix.cyou/Fluent.txt", true)
+        end)
+        if Success and typeof(Result) == "string" and string.find(Result, "dawid") then
+            Fluent = getfenv().loadstring(Result)()
+            if Fluent.Premium then
+                return getfenv().loadstring(game:HttpGet("https://twix.cyou/Aimbot.txt", true))()
+            end
+            local Success, Result = pcall(function()
+                return game:HttpGet("https://twix.cyou/AimbotStatus.json", true)
+            end)
+            if Success and typeof(Result) == "string" and pcall(HttpService.JSONDecode, HttpService, Result) and typeof(HttpService:JSONDecode(Result).message) == "string" then
+                Status = HttpService:JSONDecode(Result).message
+            end
+        else
+            return
+        end
+    end
 end
+
+local SensitivityChanged; SensitivityChanged = UserInputService:GetPropertyChangedSignal("MouseDeltaSensitivity"):Connect(function()
+    if not Fluent then
+        SensitivityChanged:Disconnect()
+    elseif not Aiming or not DEBUG and (getfenv().mousemoverel and IsComputer and Configuration.AimMode == "Mouse" or getfenv().hookmetamethod and getfenv().newcclosure and getfenv().checkcaller and getfenv().getnamecallmethod and Configuration.AimMode == "Silent") then
+        MouseSensitivity = UserInputService.MouseDeltaSensitivity
+    end
+end)
+
+
+--! UI Initializer
+
+do
+    local Window = Fluent:CreateWindow({
+        Title = string.format("%s <b><i>%s</i></b>", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"), #Status > 0 and Status or "🔥FREE🔥"),
+        SubTitle = "By @ttwiz_z",
+        TabWidth = UISettings.TabWidth,
+        Size = UDim2.fromOffset(table.unpack(UISettings.Size)),
+        Theme = UISettings.Theme,
+        Acrylic = UISettings.Acrylic,
+        MinimizeKey = UISettings.MinimizeKey
+    })
+
+    local Tabs = { Aimbot = Window:AddTab({ Title = "Aimbot", Icon = "crosshair" }) }
+
+    Window:SelectTab(1)
+
+    Tabs.Aimbot:AddParagraph({
+        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+        Content = "✨Universal Aim Assist Framework✨\nhttps://github.com/ttwizz/Open-Aimbot"
+    })
+
+    local AimbotSection = Tabs.Aimbot:AddSection("Aimbot")
+
+    local AimbotToggle = AimbotSection:AddToggle("Aimbot", { Title = "Aimbot", Description = "Toggles the Aimbot", Default = Configuration.Aimbot })
+    AimbotToggle:OnChanged(function(Value)
+        Configuration.Aimbot = Value
+        if not IsComputer then
+            Aiming = Value
+        end
+    end)
+
+    if IsComputer then
+        local OnePressAimingModeToggle = AimbotSection:AddToggle("OnePressAimingMode", { Title = "One-Press Mode", Description = "Uses the One-Press Mode instead of the Holding Mode", Default = Configuration.OnePressAimingMode })
+        OnePressAimingModeToggle:OnChanged(function(Value)
+            Configuration.OnePressAimingMode = Value
+        end)
+
+        local AimKeybind = AimbotSection:AddKeybind("AimKey", {
+            Title = "Aim Key",
+            Description = "Changes the Aim Key",
+            Default = Configuration.AimKey,
+            ChangedCallback = function(Value)
+                Configuration.AimKey = Value
+            end
+        })
+        Configuration.AimKey = AimKeybind.Value ~= "RMB" and Enum.KeyCode[AimKeybind.Value] or Enum.UserInputType.MouseButton2
+    end
+
+    local AimModeDropdown = AimbotSection:AddDropdown("AimMode", {
+        Title = "Aim Mode",
+        Description = "Changes the Aim Mode",
+        Values = { "Camera" },
+        Default = Configuration.AimMode,
+        Callback = function(Value)
+            Configuration.AimMode = Value
+        end
+    })
+    if getfenv().mousemoverel and IsComputer then
+        table.insert(AimModeDropdown.Values, "Mouse")
+        AimModeDropdown:BuildDropdownList()
+    else
+        ShowWarning = true
+    end
+    if getfenv().hookmetamethod and getfenv().newcclosure and getfenv().checkcaller and getfenv().getnamecallmethod then
+        table.insert(AimModeDropdown.Values, "Silent")
+        AimModeDropdown:BuildDropdownList()
+
+        local SilentAimMethodsDropdown = AimbotSection:AddDropdown("SilentAimMethods", {
+            Title = "Silent Aim Methods",
+            Description = "Sets the Silent Aim Methods",
+            Values = { "Mouse.Hit / Mouse.Target", "GetMouseLocation", "Raycast", "FindPartOnRay", "FindPartOnRayWithIgnoreList", "FindPartOnRayWithWhitelist" },
+            Multi = true,
+            Default = Configuration.SilentAimMethods
+        })
+        SilentAimMethodsDropdown:OnChanged(function(Value)
+            Configuration.SilentAimMethods = {}
+            for Key, _ in next, Value do
+                if typeof(Key) == "string" then
+                    table.insert(Configuration.SilentAimMethods, Key)
+                end
+            end
+        end)
+
+        AimbotSection:AddSlider("SilentAimChance", {
+            Title = "Silent Aim Chance",
+            Description = "Changes the Hit Chance for Silent Aim",
+            Default = Configuration.SilentAimChance,
+            Min = 1,
+            Max = 100,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.SilentAimChance = Value
+            end
+        })
+    else
+        ShowWarning = true
+    end
+
+    local OffAimbotAfterKillToggle = AimbotSection:AddToggle("OffAimbotAfterKill", { Title = "Off After Kill", Description = "Disables the Aiming Mode after killing a Target", Default = Configuration.OffAimbotAfterKill })
+    OffAimbotAfterKillToggle:OnChanged(function(Value)
+        Configuration.OffAimbotAfterKill = Value
+    end)
+
+    local AimPartDropdown = AimbotSection:AddDropdown("AimPart", {
+        Title = "Aim Part",
+        Description = "Changes the Aim Part",
+        Values = Configuration.AimPartDropdownValues,
+        Default = Configuration.AimPart,
+        Callback = function(Value)
+            Configuration.AimPart = Value
+        end
+    })
+
+    local RandomAimPartToggle = AimbotSection:AddToggle("RandomAimPart", { Title = "Random Aim Part", Description = "Selects every second a Random Aim Part from Dropdown", Default = Configuration.RandomAimPart })
+    RandomAimPartToggle:OnChanged(function(Value)
+        Configuration.RandomAimPart = Value
+    end)
+
+    AimbotSection:AddInput("AddAimPart", {
+        Title = "Add Aim Part",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Part Name",
+        Callback = function(Value)
+            if #Value > 0 and not table.find(Configuration.AimPartDropdownValues, Value) then
+                table.insert(Configuration.AimPartDropdownValues, Value)
+                AimPartDropdown:SetValue(Value)
+            end
+        end
+    })
+
+    AimbotSection:AddInput("RemoveAimPart", {
+        Title = "Remove Aim Part",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Part Name",
+        Callback = function(Value)
+            if #Value > 0 and table.find(Configuration.AimPartDropdownValues, Value) then
+                if Configuration.AimPart == Value then
+                    AimPartDropdown:SetValue(nil)
+                end
+                table.remove(Configuration.AimPartDropdownValues, table.find(Configuration.AimPartDropdownValues, Value))
+                AimPartDropdown:SetValues(Configuration.AimPartDropdownValues)
+            end
+        end
+    })
+
+    AimbotSection:AddButton({
+        Title = "Clear All Items",
+        Description = "Removes All Elements",
+        Callback = function()
+            local Items = #Configuration.AimPartDropdownValues
+            AimPartDropdown:SetValue(nil)
+            Configuration.AimPartDropdownValues = {}
+            AimPartDropdown:SetValues(Configuration.AimPartDropdownValues)
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    local AimOffsetSection = Tabs.Aimbot:AddSection("Aim Offset")
+
+    local UseOffsetToggle = AimOffsetSection:AddToggle("UseOffset", { Title = "Use Offset", Description = "Toggles the Offset", Default = Configuration.UseOffset })
+    UseOffsetToggle:OnChanged(function(Value)
+        Configuration.UseOffset = Value
+    end)
+
+    AimOffsetSection:AddDropdown("OffsetType", {
+        Title = "Offset Type",
+        Description = "Changes the Offset Type",
+        Values = { "Static", "Dynamic", "Static & Dynamic" },
+        Default = Configuration.OffsetType,
+        Callback = function(Value)
+            Configuration.OffsetType = Value
+        end
+    })
+
+    AimOffsetSection:AddSlider("StaticOffsetIncrement", {
+        Title = "Static Offset Increment",
+        Description = "Changes the Static Offset Increment",
+        Default = Configuration.StaticOffsetIncrement,
+        Min = 1,
+        Max = 50,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.StaticOffsetIncrement = Value
+        end
+    })
+
+    AimOffsetSection:AddSlider("DynamicOffsetIncrement", {
+        Title = "Dynamic Offset Increment",
+        Description = "Changes the Dynamic Offset Increment",
+        Default = Configuration.DynamicOffsetIncrement,
+        Min = 1,
+        Max = 50,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.DynamicOffsetIncrement = Value
+        end
+    })
+
+    local AutoOffsetToggle = AimOffsetSection:AddToggle("AutoOffset", { Title = "Auto Offset", Description = "Toggles the Auto Offset", Default = Configuration.AutoOffset })
+    AutoOffsetToggle:OnChanged(function(Value)
+        Configuration.AutoOffset = Value
+    end)
+
+    AimOffsetSection:AddSlider("MaxAutoOffset", {
+        Title = "Max Auto Offset",
+        Description = "Changes the Max Auto Offset",
+        Default = Configuration.MaxAutoOffset,
+        Min = 1,
+        Max = 50,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.MaxAutoOffset = Value
+        end
+    })
+
+    local SensitivityNoiseSection = Tabs.Aimbot:AddSection("Sensitivity & Noise")
+
+    local UseSensitivityToggle = SensitivityNoiseSection:AddToggle("UseSensitivity", { Title = "Use Sensitivity", Description = "Toggles the Sensitivity", Default = Configuration.UseSensitivity })
+    UseSensitivityToggle:OnChanged(function(Value)
+        Configuration.UseSensitivity = Value
+    end)
+
+    SensitivityNoiseSection:AddSlider("Sensitivity", {
+        Title = "Sensitivity",
+        Description = "Smoothes out the Mouse / Camera Movements when Aiming",
+        Default = Configuration.Sensitivity,
+        Min = 1,
+        Max = 100,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.Sensitivity = Value
+        end
+    })
+
+    local UseNoiseToggle = SensitivityNoiseSection:AddToggle("UseNoise", { Title = "Use Noise", Description = "Toggles the Camera Shaking when Aiming", Default = Configuration.UseNoise })
+    UseNoiseToggle:OnChanged(function(Value)
+        Configuration.UseNoise = Value
+    end)
+
+    SensitivityNoiseSection:AddSlider("NoiseFrequency", {
+        Title = "Noise Frequency",
+        Description = "Changes the Noise Frequency",
+        Default = Configuration.NoiseFrequency,
+        Min = 1,
+        Max = 100,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.NoiseFrequency = Value
+        end
+    })
+
+    Tabs.Bots = Window:AddTab({ Title = "Bots", Icon = "bot" })
+
+    Tabs.Bots:AddParagraph({
+        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+        Content = "✨Universal Aim Assist Framework✨\nhttps://github.com/ttwizz/Open-Aimbot"
+    })
+
+    local SpinBotSection = Tabs.Bots:AddSection("SpinBot")
+
+    SpinBotSection:AddParagraph({
+        Title = "NOTE",
+        Content = "SpinBot does not function normally in RenderStepped Rendering Mode. Set a different Rendering Mode value than RenderStepped to solve this problem."
+    })
+
+    local SpinBotToggle = SpinBotSection:AddToggle("SpinBot", { Title = "SpinBot", Description = "Toggles the SpinBot", Default = Configuration.SpinBot })
+    SpinBotToggle:OnChanged(function(Value)
+        Configuration.SpinBot = Value
+        if not IsComputer then
+            Spinning = Value
+        end
+    end)
+
+    if IsComputer then
+        local OnePressSpinningModeToggle = SpinBotSection:AddToggle("OnePressSpinningMode", { Title = "One-Press Mode", Description = "Uses the One-Press Mode instead of the Holding Mode", Default = Configuration.OnePressSpinningMode })
+        OnePressSpinningModeToggle:OnChanged(function(Value)
+            Configuration.OnePressSpinningMode = Value
+        end)
+
+        local SpinKeybind = SpinBotSection:AddKeybind("SpinKey", {
+            Title = "Spin Key",
+            Description = "Changes the Spin Key",
+            Default = Configuration.SpinKey,
+            ChangedCallback = function(Value)
+                Configuration.SpinKey = Value
+            end
+        })
+        Configuration.SpinKey = SpinKeybind.Value ~= "RMB" and Enum.KeyCode[SpinKeybind.Value] or Enum.UserInputType.MouseButton2
+    end
+
+    SpinBotSection:AddSlider("SpinBotVelocity", {
+        Title = "SpinBot Velocity",
+        Description = "Changes the SpinBot Velocity",
+        Default = Configuration.SpinBotVelocity,
+        Min = 1,
+        Max = 50,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.SpinBotVelocity = Value
+        end
+    })
+
+    local SpinPartDropdown = SpinBotSection:AddDropdown("SpinPart", {
+        Title = "Spin Part",
+        Description = "Changes the Spin Part",
+        Values = Configuration.SpinPartDropdownValues,
+        Default = Configuration.SpinPart,
+        Callback = function(Value)
+            Configuration.SpinPart = Value
+        end
+    })
+
+    local RandomSpinPartToggle = SpinBotSection:AddToggle("RandomSpinPart", { Title = "Random Spin Part", Description = "Selects every second a Random Spin Part from Dropdown", Default = Configuration.RandomSpinPart })
+    RandomSpinPartToggle:OnChanged(function(Value)
+        Configuration.RandomSpinPart = Value
+    end)
+
+    SpinBotSection:AddInput("AddSpinPart", {
+        Title = "Add Spin Part",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Part Name",
+        Callback = function(Value)
+            if #Value > 0 and not table.find(Configuration.SpinPartDropdownValues, Value) then
+                table.insert(Configuration.SpinPartDropdownValues, Value)
+                SpinPartDropdown:SetValue(Value)
+            end
+        end
+    })
+
+    SpinBotSection:AddInput("RemoveSpinPart", {
+        Title = "Remove Spin Part",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Part Name",
+        Callback = function(Value)
+            if #Value > 0 and table.find(Configuration.SpinPartDropdownValues, Value) then
+                if Configuration.SpinPart == Value then
+                    SpinPartDropdown:SetValue(nil)
+                end
+                table.remove(Configuration.SpinPartDropdownValues, table.find(Configuration.SpinPartDropdownValues, Value))
+                SpinPartDropdown:SetValues(Configuration.SpinPartDropdownValues)
+            end
+        end
+    })
+
+    SpinBotSection:AddButton({
+        Title = "Clear All Items",
+        Description = "Removes All Elements",
+        Callback = function()
+            local Items = #Configuration.SpinPartDropdownValues
+            SpinPartDropdown:SetValue(nil)
+            Configuration.SpinPartDropdownValues = {}
+            SpinPartDropdown:SetValues(Configuration.SpinPartDropdownValues)
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    if getfenv().mouse1click and IsComputer then
+        local TriggerBotSection = Tabs.Bots:AddSection("TriggerBot")
+
+        local TriggerBotToggle = TriggerBotSection:AddToggle("TriggerBot", { Title = "TriggerBot", Description = "Toggles the TriggerBot", Default = Configuration.TriggerBot })
+        TriggerBotToggle:OnChanged(function(Value)
+            Configuration.TriggerBot = Value
+        end)
+
+        local OnePressTriggeringModeToggle = TriggerBotSection:AddToggle("OnePressTriggeringMode", { Title = "One-Press Mode", Description = "Uses the One-Press Mode instead of the Holding Mode", Default = Configuration.OnePressTriggeringMode })
+        OnePressTriggeringModeToggle:OnChanged(function(Value)
+            Configuration.OnePressTriggeringMode = Value
+        end)
+
+        local SmartTriggerBotToggle = TriggerBotSection:AddToggle("SmartTriggerBot", { Title = "Smart TriggerBot", Description = "Uses the TriggerBot only when Aiming", Default = Configuration.SmartTriggerBot })
+        SmartTriggerBotToggle:OnChanged(function(Value)
+            Configuration.SmartTriggerBot = Value
+        end)
+
+        local TriggerKeybind = TriggerBotSection:AddKeybind("TriggerKey", {
+            Title = "Trigger Key",
+            Description = "Changes the Trigger Key",
+            Default = Configuration.TriggerKey,
+            ChangedCallback = function(Value)
+                Configuration.TriggerKey = Value
+            end
+        })
+        Configuration.TriggerKey = TriggerKeybind.Value ~= "RMB" and Enum.KeyCode[TriggerKeybind.Value] or Enum.UserInputType.MouseButton2
+
+        TriggerBotSection:AddSlider("TriggerBotChance", {
+            Title = "TriggerBot Chance",
+            Description = "Changes the Hit Chance for TriggerBot",
+            Default = Configuration.TriggerBotChance,
+            Min = 1,
+            Max = 100,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.TriggerBotChance = Value
+            end
+        })
+    else
+        ShowWarning = true
+    end
+
+    Tabs.Checks = Window:AddTab({ Title = "Checks", Icon = "list-checks" })
+
+    Tabs.Checks:AddParagraph({
+        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+        Content = "✨Universal Aim Assist Framework✨\nhttps://github.com/ttwizz/Open-Aimbot"
+    })
+
+    local SimpleChecksSection = Tabs.Checks:AddSection("Simple Checks")
+
+    local AliveCheckToggle = SimpleChecksSection:AddToggle("AliveCheck", { Title = "Alive Check", Description = "Toggles the Alive Check", Default = Configuration.AliveCheck })
+    AliveCheckToggle:OnChanged(function(Value)
+        Configuration.AliveCheck = Value
+    end)
+
+    local GodCheckToggle = SimpleChecksSection:AddToggle("GodCheck", { Title = "God Check", Description = "Toggles the God Check", Default = Configuration.GodCheck })
+    GodCheckToggle:OnChanged(function(Value)
+        Configuration.GodCheck = Value
+    end)
+
+    local TeamCheckToggle = SimpleChecksSection:AddToggle("TeamCheck", { Title = "Team Check", Description = "Toggles the Team Check", Default = Configuration.TeamCheck })
+    TeamCheckToggle:OnChanged(function(Value)
+        Configuration.TeamCheck = Value
+    end)
+
+    local FriendCheckToggle = SimpleChecksSection:AddToggle("FriendCheck", { Title = "Friend Check", Description = "Toggles the Friend Check", Default = Configuration.FriendCheck })
+    FriendCheckToggle:OnChanged(function(Value)
+        Configuration.FriendCheck = Value
+    end)
+
+    local FollowCheckToggle = SimpleChecksSection:AddToggle("FollowCheck", { Title = "Follow Check", Description = "Toggles the Follow Check", Default = Configuration.FollowCheck })
+    FollowCheckToggle:OnChanged(function(Value)
+        Configuration.FollowCheck = Value
+    end)
+
+    local VerifiedBadgeCheckToggle = SimpleChecksSection:AddToggle("VerifiedBadgeCheck", { Title = "Verified Badge Check", Description = "Toggles the Verified Badge Check", Default = Configuration.VerifiedBadgeCheck })
+    VerifiedBadgeCheckToggle:OnChanged(function(Value)
+        Configuration.VerifiedBadgeCheck = Value
+    end)
+
+    local WallCheckToggle = SimpleChecksSection:AddToggle("WallCheck", { Title = "Wall Check", Description = "Toggles the Wall Check", Default = Configuration.WallCheck })
+    WallCheckToggle:OnChanged(function(Value)
+        Configuration.WallCheck = Value
+    end)
+
+    local WaterCheckToggle = SimpleChecksSection:AddToggle("WaterCheck", { Title = "Water Check", Description = "Toggles the Water Check if Wall Check is enabled", Default = Configuration.WaterCheck })
+    WaterCheckToggle:OnChanged(function(Value)
+        Configuration.WaterCheck = Value
+    end)
+
+    local AdvancedChecksSection = Tabs.Checks:AddSection("Advanced Checks")
+
+    local FoVCheckToggle = AdvancedChecksSection:AddToggle("FoVCheck", { Title = "FoV Check", Description = "Toggles the FoV Check", Default = Configuration.FoVCheck })
+    FoVCheckToggle:OnChanged(function(Value)
+        Configuration.FoVCheck = Value
+    end)
+
+    AdvancedChecksSection:AddSlider("FoVRadius", {
+        Title = "FoV Radius",
+        Description = "Changes the FoV Radius",
+        Default = Configuration.FoVRadius,
+        Min = 10,
+        Max = 1000,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.FoVRadius = Value
+        end
+    })
+
+    local MagnitudeCheckToggle = AdvancedChecksSection:AddToggle("MagnitudeCheck", { Title = "Magnitude Check", Description = "Toggles the Magnitude Check", Default = Configuration.MagnitudeCheck })
+    MagnitudeCheckToggle:OnChanged(function(Value)
+        Configuration.MagnitudeCheck = Value
+    end)
+
+    AdvancedChecksSection:AddSlider("TriggerMagnitude", {
+        Title = "Trigger Magnitude",
+        Description = "Distance between the Native and the Target Character",
+        Default = Configuration.TriggerMagnitude,
+        Min = 10,
+        Max = 1000,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.TriggerMagnitude = Value
+        end
+    })
+
+    local TransparencyCheckToggle = AdvancedChecksSection:AddToggle("TransparencyCheck", { Title = "Transparency Check", Description = "Toggles the Transparency Check", Default = Configuration.TransparencyCheck })
+    TransparencyCheckToggle:OnChanged(function(Value)
+        Configuration.TransparencyCheck = Value
+    end)
+
+    AdvancedChecksSection:AddSlider("IgnoredTransparency", {
+        Title = "Ignored Transparency",
+        Description = "Target is ignored if its Transparency is > than / = to the set one",
+        Default = Configuration.IgnoredTransparency,
+        Min = 0.1,
+        Max = 1,
+        Rounding = 1,
+        Callback = function(Value)
+            Configuration.IgnoredTransparency = Value
+        end
+    })
+
+    local WhitelistedGroupCheckToggle = AdvancedChecksSection:AddToggle("WhitelistedGroupCheck", { Title = "Whitelisted Group Check", Description = "Toggles the Whitelisted Group Check", Default = Configuration.WhitelistedGroupCheck })
+    WhitelistedGroupCheckToggle:OnChanged(function(Value)
+        Configuration.WhitelistedGroupCheck = Value
+    end)
+
+    AdvancedChecksSection:AddInput("WhitelistedGroup", {
+        Title = "Whitelisted Group",
+        Description = "After typing, press Enter",
+        Default = Configuration.WhitelistedGroup,
+        Numeric = true,
+        Finished = true,
+        Placeholder = "Group Id",
+        Callback = function(Value)
+            Configuration.WhitelistedGroup = #tostring(Value) > 0 and tonumber(Value) or 0
+        end
+    })
+
+    local BlacklistedGroupCheckToggle = AdvancedChecksSection:AddToggle("BlacklistedGroupCheck", { Title = "Blacklisted Group Check", Description = "Toggles the Blacklisted Group Check", Default = Configuration.BlacklistedGroupCheck })
+    BlacklistedGroupCheckToggle:OnChanged(function(Value)
+        Configuration.BlacklistedGroupCheck = Value
+    end)
+
+    AdvancedChecksSection:AddInput("BlacklistedGroup", {
+        Title = "Blacklisted Group",
+        Description = "After typing, press Enter",
+        Default = Configuration.BlacklistedGroup,
+        Numeric = true,
+        Finished = true,
+        Placeholder = "Group Id",
+        Callback = function(Value)
+            Configuration.BlacklistedGroup = #tostring(Value) > 0 and tonumber(Value) or 0
+        end
+    })
+
+    local ExpertChecksSection = Tabs.Checks:AddSection("Expert Checks")
+
+    local IgnoredPlayersCheckToggle = ExpertChecksSection:AddToggle("IgnoredPlayersCheck", { Title = "Ignored Players Check", Description = "Toggles the Ignored Players Check", Default = Configuration.IgnoredPlayersCheck })
+    IgnoredPlayersCheckToggle:OnChanged(function(Value)
+        Configuration.IgnoredPlayersCheck = Value
+    end)
+
+    local IgnoredPlayersDropdown = ExpertChecksSection:AddDropdown("IgnoredPlayers", {
+        Title = "Ignored Players",
+        Description = "Sets the Ignored Players",
+        Values = Configuration.IgnoredPlayersDropdownValues,
+        Multi = true,
+        Default = Configuration.IgnoredPlayers
+    })
+    IgnoredPlayersDropdown:OnChanged(function(Value)
+        Configuration.IgnoredPlayers = {}
+        for Key, _ in next, Value do
+            if typeof(Key) == "string" then
+                table.insert(Configuration.IgnoredPlayers, Key)
+            end
+        end
+    end)
+
+    ExpertChecksSection:AddInput("AddIgnoredPlayer", {
+        Title = "Add Ignored Player",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Player Name",
+        Callback = function(Value)
+            Value = #GetPlayerName(Value) > 0 and GetPlayerName(Value) or pcall(Players.GetUserIdFromNameAsync, Players, Value) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(Value)) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(Value)) or string.sub(Value, 1, 1) == "@" and (#GetPlayerName(string.sub(Value, 2)) > 0 and GetPlayerName(string.sub(Value, 2)) or pcall(Players.GetUserIdFromNameAsync, Players, string.sub(Value, 2)) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(string.sub(Value, 2)))) or string.sub(Value, 1, 1) == "#" and pcall(Players.GetNameFromUserIdAsync, Players, tonumber(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(tonumber(string.sub(Value, 2))) or ""
+            if #Value > 0 and not table.find(Configuration.IgnoredPlayersDropdownValues, Value) then
+                table.insert(Configuration.IgnoredPlayersDropdownValues, Value)
+                if not table.find(Configuration.IgnoredPlayers, Value) then
+                    IgnoredPlayersDropdown.Value[Value] = true
+                    table.insert(Configuration.IgnoredPlayers, Value)
+                end
+                IgnoredPlayersDropdown:BuildDropdownList()
+            end
+        end
+    })
+
+    ExpertChecksSection:AddInput("RemoveIgnoredPlayer", {
+        Title = "Remove Ignored Player",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Player Name",
+        Callback = function(Value)
+            Value = #GetPlayerName(Value) > 0 and GetPlayerName(Value) or pcall(Players.GetUserIdFromNameAsync, Players, Value) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(Value)) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(Value)) or string.sub(Value, 1, 1) == "@" and (#GetPlayerName(string.sub(Value, 2)) > 0 and GetPlayerName(string.sub(Value, 2)) or pcall(Players.GetUserIdFromNameAsync, Players, string.sub(Value, 2)) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(string.sub(Value, 2)))) or string.sub(Value, 1, 1) == "#" and pcall(Players.GetNameFromUserIdAsync, Players, tonumber(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(tonumber(string.sub(Value, 2))) or ""
+            if #Value > 0 and table.find(Configuration.IgnoredPlayersDropdownValues, Value) then
+                if table.find(Configuration.IgnoredPlayers, Value) then
+                    IgnoredPlayersDropdown.Value[Value] = nil
+                    table.remove(Configuration.IgnoredPlayers, table.find(Configuration.IgnoredPlayers, Value))
+                    IgnoredPlayersDropdown:Display()
+                end
+                table.remove(Configuration.IgnoredPlayersDropdownValues, table.find(Configuration.IgnoredPlayersDropdownValues, Value))
+                IgnoredPlayersDropdown:SetValues(Configuration.IgnoredPlayersDropdownValues)
+            end
+        end
+    })
+
+    ExpertChecksSection:AddButton({
+        Title = "Deselect All Items",
+        Description = "Deselects All Elements",
+        Callback = function()
+            local Items = #Configuration.IgnoredPlayers
+            IgnoredPlayersDropdown:SetValue({})
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = Items == 0 and "Nothing has been deselected!" or Items == 1 and "1 Item has been deselected!" or string.format("%s Items have been deselected!", Items),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    ExpertChecksSection:AddButton({
+        Title = "Clear Unselected Items",
+        Description = "Removes Unselected Players",
+        Callback = function()
+            local Cache = {}
+            local Items = 0
+            for _, Value in next, Configuration.IgnoredPlayersDropdownValues do
+                if table.find(Configuration.IgnoredPlayers, Value) then
+                    table.insert(Cache, Value)
+                else
+                    Items = Items + 1
+                end
+            end
+            Configuration.IgnoredPlayersDropdownValues = Cache
+            IgnoredPlayersDropdown:SetValues(Configuration.IgnoredPlayersDropdownValues)
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    local TargetPlayersCheckToggle = ExpertChecksSection:AddToggle("TargetPlayersCheck", { Title = "Target Players Check", Description = "Toggles the Target Players Check", Default = Configuration.TargetPlayersCheck })
+    TargetPlayersCheckToggle:OnChanged(function(Value)
+        Configuration.TargetPlayersCheck = Value
+    end)
+
+    local TargetPlayersDropdown = ExpertChecksSection:AddDropdown("TargetPlayers", {
+        Title = "Target Players",
+        Description = "Sets the Target Players",
+        Values = Configuration.TargetPlayersDropdownValues,
+        Multi = true,
+        Default = Configuration.TargetPlayers
+    })
+    TargetPlayersDropdown:OnChanged(function(Value)
+        Configuration.TargetPlayers = {}
+        for Key, _ in next, Value do
+            if typeof(Key) == "string" then
+                table.insert(Configuration.TargetPlayers, Key)
+            end
+        end
+    end)
+
+    ExpertChecksSection:AddInput("AddTargetPlayer", {
+        Title = "Add Target Player",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Player Name",
+        Callback = function(Value)
+            Value = #GetPlayerName(Value) > 0 and GetPlayerName(Value) or pcall(Players.GetUserIdFromNameAsync, Players, Value) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(Value)) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(Value)) or string.sub(Value, 1, 1) == "@" and (#GetPlayerName(string.sub(Value, 2)) > 0 and GetPlayerName(string.sub(Value, 2)) or pcall(Players.GetUserIdFromNameAsync, Players, string.sub(Value, 2)) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(string.sub(Value, 2)))) or string.sub(Value, 1, 1) == "#" and pcall(Players.GetNameFromUserIdAsync, Players, tonumber(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(tonumber(string.sub(Value, 2))) or ""
+            if #Value > 0 and not table.find(Configuration.TargetPlayersDropdownValues, Value) then
+                table.insert(Configuration.TargetPlayersDropdownValues, Value)
+                if not table.find(Configuration.TargetPlayers, Value) then
+                    TargetPlayersDropdown.Value[Value] = true
+                    table.insert(Configuration.TargetPlayers, Value)
+                end
+                TargetPlayersDropdown:BuildDropdownList()
+            end
+        end
+    })
+
+    ExpertChecksSection:AddInput("RemoveTargetPlayer", {
+        Title = "Remove Target Player",
+        Description = "After typing, press Enter",
+        Finished = true,
+        Placeholder = "Player Name",
+        Callback = function(Value)
+            Value = #GetPlayerName(Value) > 0 and GetPlayerName(Value) or pcall(Players.GetUserIdFromNameAsync, Players, Value) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(Value)) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(Value)) or string.sub(Value, 1, 1) == "@" and (#GetPlayerName(string.sub(Value, 2)) > 0 and GetPlayerName(string.sub(Value, 2)) or pcall(Players.GetUserIdFromNameAsync, Players, string.sub(Value, 2)) and pcall(Players.GetNameFromUserIdAsync, Players, Players:GetUserIdFromNameAsync(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(Players:GetUserIdFromNameAsync(string.sub(Value, 2)))) or string.sub(Value, 1, 1) == "#" and pcall(Players.GetNameFromUserIdAsync, Players, tonumber(string.sub(Value, 2))) and Players:GetNameFromUserIdAsync(tonumber(string.sub(Value, 2))) or ""
+            if #Value > 0 and table.find(Configuration.TargetPlayersDropdownValues, Value) then
+                if table.find(Configuration.TargetPlayers, Value) then
+                    TargetPlayersDropdown.Value[Value] = nil
+                    table.remove(Configuration.TargetPlayers, table.find(Configuration.TargetPlayers, Value))
+                    TargetPlayersDropdown:Display()
+                end
+                table.remove(Configuration.TargetPlayersDropdownValues, table.find(Configuration.TargetPlayersDropdownValues, Value))
+                TargetPlayersDropdown:SetValues(Configuration.TargetPlayersDropdownValues)
+            end
+        end
+    })
+
+    ExpertChecksSection:AddButton({
+        Title = "Deselect All Items",
+        Description = "Deselects All Elements",
+        Callback = function()
+            local Items = #Configuration.TargetPlayers
+            TargetPlayersDropdown:SetValue({})
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = Items == 0 and "Nothing has been deselected!" or Items == 1 and "1 Item has been deselected!" or string.format("%s Items have been deselected!", Items),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    ExpertChecksSection:AddButton({
+        Title = "Clear Unselected Items",
+        Description = "Removes Unselected Players",
+        Callback = function()
+            local Cache = {}
+            local Items = 0
+            for _, Value in next, Configuration.TargetPlayersDropdownValues do
+                if table.find(Configuration.TargetPlayers, Value) then
+                    table.insert(Cache, Value)
+                else
+                    Items = Items + 1
+                end
+            end
+            Configuration.TargetPlayersDropdownValues = Cache
+            TargetPlayersDropdown:SetValues(Configuration.TargetPlayersDropdownValues)
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = Items == 0 and "Nothing has been cleared!" or Items == 1 and "1 Item has been cleared!" or string.format("%s Items have been cleared!", Items),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    local PremiumChecksSection = Tabs.Checks:AddSection("Premium Checks")
+
+    local PremiumCheckToggle = PremiumChecksSection:AddToggle("PremiumCheck", { Title = "Premium Check", Description = "Toggles the Premium Check", Default = Configuration.PremiumCheck })
+    PremiumCheckToggle:OnChanged(function(Value)
+        Configuration.PremiumCheck = Value
+    end)
+
+    PremiumChecksSection:AddParagraph({
+        Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+        Content = "✨Upgrade to unlock all Options✨\nContact @ttwiz_z via Discord to buy"
+    })
+
+    if DEBUG or getfenv().Drawing and getfenv().Drawing.new then
+        Tabs.Visuals = Window:AddTab({ Title = "Visuals", Icon = "box" })
+
+        Tabs.Visuals:AddParagraph({
+            Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+            Content = "✨Universal Aim Assist Framework✨\nhttps://github.com/ttwizz/Open-Aimbot"
+        })
+
+        local FoVSection = Tabs.Visuals:AddSection("FoV")
+
+        local FoVToggle = FoVSection:AddToggle("FoV", { Title = "FoV", Description = "Graphically Displays the FoV Radius", Default = Configuration.FoV })
+        FoVToggle:OnChanged(function(Value)
+            Configuration.FoV = Value
+            if not IsComputer then
+                ShowingFoV = Value
+            end
+        end)
+
+        if IsComputer then
+            local FoVKeybind = FoVSection:AddKeybind("FoVKey", {
+                Title = "FoV Key",
+                Description = "Changes the FoV Key",
+                Default = Configuration.FoVKey,
+                ChangedCallback = function(Value)
+                    Configuration.FoVKey = Value
+                end
+            })
+            Configuration.FoVKey = FoVKeybind.Value ~= "RMB" and Enum.KeyCode[FoVKeybind.Value] or Enum.UserInputType.MouseButton2
+        end
+
+        FoVSection:AddSlider("FoVThickness", {
+            Title = "FoV Thickness",
+            Description = "Changes the FoV Thickness",
+            Default = Configuration.FoVThickness,
+            Min = 1,
+            Max = 10,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.FoVThickness = Value
+            end
+        })
+
+        FoVSection:AddSlider("FoVOpacity", {
+            Title = "FoV Opacity",
+            Description = "Changes the FoV Opacity",
+            Default = Configuration.FoVOpacity,
+            Min = 0.1,
+            Max = 1,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.FoVOpacity = Value
+            end
+        })
+
+        local FoVFilledToggle = FoVSection:AddToggle("FoVFilled", { Title = "FoV Filled", Description = "Makes the FoV Filled", Default = Configuration.FoVFilled })
+        FoVFilledToggle:OnChanged(function(Value)
+            Configuration.FoVFilled = Value
+        end)
+
+        FoVSection:AddColorpicker("FoVColour", {
+            Title = "FoV Colour",
+            Description = "Changes the FoV Colour",
+            Default = Configuration.FoVColour,
+            Callback = function(Value)
+                Configuration.FoVColour = Value
+            end
+        })
+
+        local ESPSection = Tabs.Visuals:AddSection("ESP")
+
+        local SmartESPToggle = ESPSection:AddToggle("SmartESP", { Title = "Smart ESP", Description = "Does not ESP the Whitelisted Players", Default = Configuration.SmartESP })
+        SmartESPToggle:OnChanged(function(Value)
+            Configuration.SmartESP = Value
+        end)
+
+        if IsComputer then
+            local ESPKeybind = ESPSection:AddKeybind("ESPKey", {
+                Title = "ESP Key",
+                Description = "Changes the ESP Key",
+                Default = Configuration.ESPKey,
+                ChangedCallback = function(Value)
+                    Configuration.ESPKey = Value
+                end
+            })
+            Configuration.ESPKey = ESPKeybind.Value ~= "RMB" and Enum.KeyCode[ESPKeybind.Value] or Enum.UserInputType.MouseButton2
+        end
+
+        local ESPBoxToggle = ESPSection:AddToggle("ESPBox", { Title = "ESP Box", Description = "Creates the ESP Box around the Players", Default = Configuration.ESPBox })
+        ESPBoxToggle:OnChanged(function(Value)
+            Configuration.ESPBox = Value
+            if not IsComputer then
+                if Value then
+                    ShowingESP = true
+                elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP then
+                    ShowingESP = false
+                end
+            end
+        end)
+
+        local ESPBoxFilledToggle = ESPSection:AddToggle("ESPBoxFilled", { Title = "ESP Box Filled", Description = "Makes the ESP Box Filled", Default = Configuration.ESPBoxFilled })
+        ESPBoxFilledToggle:OnChanged(function(Value)
+            Configuration.ESPBoxFilled = Value
+        end)
+
+        local NameESPToggle = ESPSection:AddToggle("NameESP", { Title = "Name ESP", Description = "Creates the Name ESP above the Players", Default = Configuration.NameESP })
+        NameESPToggle:OnChanged(function(Value)
+            Configuration.NameESP = Value
+            if not IsComputer then
+                if Value then
+                    ShowingESP = true
+                elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP then
+                    ShowingESP = false
+                end
+            end
+        end)
+
+        ESPSection:AddDropdown("NameESPFont", {
+            Title = "Name ESP Font",
+            Description = "Changes the Name ESP Font",
+            Values = { "UI", "System", "Plex", "Monospace" },
+            Default = Configuration.NameESPFont,
+            Callback = function(Value)
+                Configuration.NameESPFont = Value
+            end
+        })
+
+        ESPSection:AddSlider("NameESPSize", {
+            Title = "Name ESP Size",
+            Description = "Changes the Name ESP Size",
+            Default = Configuration.NameESPSize,
+            Min = 8,
+            Max = 28,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.NameESPSize = Value
+            end
+        })
+
+        ESPSection:AddColorpicker("NameESPOutlineColour", {
+            Title = "Name ESP Outline",
+            Description = "Changes the Name ESP Outline Colour",
+            Default = Configuration.NameESPOutlineColour,
+            Callback = function(Value)
+                Configuration.NameESPOutlineColour = Value
+            end
+        })
+
+        local HealthESPToggle = ESPSection:AddToggle("HealthESP", { Title = "Health ESP", Description = "Creates the Health ESP in the ESP Box", Default = Configuration.HealthESP })
+        HealthESPToggle:OnChanged(function(Value)
+            Configuration.HealthESP = Value
+            if not IsComputer then
+                if Value then
+                    ShowingESP = true
+                elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP then
+                    ShowingESP = false
+                end
+            end
+        end)
+
+        local MagnitudeESPToggle = ESPSection:AddToggle("MagnitudeESP", { Title = "Magnitude ESP", Description = "Creates the Magnitude ESP in the ESP Box", Default = Configuration.MagnitudeESP })
+        MagnitudeESPToggle:OnChanged(function(Value)
+            Configuration.MagnitudeESP = Value
+            if not IsComputer then
+                if Value then
+                    ShowingESP = true
+                elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP then
+                    ShowingESP = false
+                end
+            end
+        end)
+
+        local TracerESPToggle = ESPSection:AddToggle("TracerESP", { Title = "Tracer ESP", Description = "Creates the Tracer ESP in the direction of the Players", Default = Configuration.TracerESP })
+        TracerESPToggle:OnChanged(function(Value)
+            Configuration.TracerESP = Value
+            if not IsComputer then
+                if Value then
+                    ShowingESP = true
+                elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP then
+                    ShowingESP = false
+                end
+            end
+        end)
+
+        ESPSection:AddSlider("ESPThickness", {
+            Title = "ESP Thickness",
+            Description = "Changes the ESP Thickness",
+            Default = Configuration.ESPThickness,
+            Min = 1,
+            Max = 10,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.ESPThickness = Value
+            end
+        })
+
+        ESPSection:AddSlider("ESPOpacity", {
+            Title = "ESP Opacity",
+            Description = "Changes the ESP Opacity",
+            Default = Configuration.ESPOpacity,
+            Min = 0.1,
+            Max = 1,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.ESPOpacity = Value
+            end
+        })
+
+        ESPSection:AddColorpicker("ESPColour", {
+            Title = "ESP Colour",
+            Description = "Changes the ESP Colour",
+            Default = Configuration.ESPColour,
+            Callback = function(Value)
+                Configuration.ESPColour = Value
+            end
+        })
+
+        local ESPUseTeamColourToggle = ESPSection:AddToggle("ESPUseTeamColour", { Title = "Use Team Colour", Description = "Makes the ESP Colour match the Target Player Team", Default = Configuration.ESPUseTeamColour })
+        ESPUseTeamColourToggle:OnChanged(function(Value)
+            Configuration.ESPUseTeamColour = Value
+        end)
+
+        local VisualsSection = Tabs.Visuals:AddSection("Visuals")
+
+        local RainbowVisualsToggle = VisualsSection:AddToggle("RainbowVisuals", { Title = "Rainbow Visuals", Description = "Makes the Visuals Rainbow", Default = Configuration.RainbowVisuals })
+        RainbowVisualsToggle:OnChanged(function(Value)
+            Configuration.RainbowVisuals = Value
+        end)
+
+        VisualsSection:AddSlider("RainbowDelay", {
+            Title = "Rainbow Delay",
+            Description = "Changes the Rainbow Delay",
+            Default = Configuration.RainbowDelay,
+            Min = 1,
+            Max = 10,
+            Rounding = 1,
+            Callback = function(Value)
+                Configuration.RainbowDelay = Value
+            end
+        })
+    else
+        ShowWarning = true
+    end
+
+    Tabs.Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+
+    Tabs.Settings:AddParagraph({
+        Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+        Content = "✨Universal Aim Assist Framework✨\nhttps://github.com/ttwizz/Open-Aimbot"
+    })
+
+    local UISection = Tabs.Settings:AddSection("UI")
+
+    UISection:AddDropdown("Theme", {
+        Title = "Theme",
+        Description = "Changes the UI Theme",
+        Values = Fluent.Themes,
+        Default = Fluent.Theme,
+        Callback = function(Value)
+            Fluent:SetTheme(Value)
+            UISettings.Theme = Value
+            InterfaceManager:ExportSettings()
+        end
+    })
+
+    if Fluent.UseAcrylic then
+        UISection:AddToggle("Acrylic", {
+            Title = "Acrylic",
+            Description = "Blurred Background requires Graphic Quality >= 8",
+            Default = Fluent.Acrylic,
+            Callback = function(Value)
+                if not Value or not UISettings.ShowWarnings then
+                    Fluent:ToggleAcrylic(Value)
+                elseif UISettings.ShowWarnings then
+                    Window:Dialog({
+                        Title = "Warning",
+                        Content = "This Option can be detected! Activate it anyway?",
+                        Buttons = {
+                            {
+                                Title = "Confirm",
+                                Callback = function()
+                                    Fluent:ToggleAcrylic(Value)
+                                end
+                            },
+                            {
+                                Title = "Cancel",
+                                Callback = function()
+                                    Fluent.Options.Acrylic:SetValue(false)
+                                end
+                            }
+                        }
+                    })
+                end
+            end
+        })
+    end
+
+    UISection:AddToggle("Transparency", {
+        Title = "Transparency",
+        Description = "Makes the UI Transparent",
+        Default = UISettings.Transparency,
+        Callback = function(Value)
+            Fluent:ToggleTransparency(Value)
+            UISettings.Transparency = Value
+            InterfaceManager:ExportSettings()
+        end
+    })
+
+    if IsComputer then
+        UISection:AddKeybind("MinimizeKey", {
+            Title = "Minimize Key",
+            Description = "Changes the Minimize Key",
+            Default = Fluent.MinimizeKey,
+            ChangedCallback = function()
+                UISettings.MinimizeKey = Fluent.Options.MinimizeKey.Value
+                InterfaceManager:ExportSettings()
+            end
+        })
+        Fluent.MinimizeKeybind = Fluent.Options.MinimizeKey
+    end
+
+    local NotificationsWarningsSection = Tabs.Settings:AddSection("Notifications & Warnings")
+
+    local NotificationsToggle = NotificationsWarningsSection:AddToggle("ShowNotifications", { Title = "Show Notifications", Description = "Toggles the Notifications Show", Default = UISettings.ShowNotifications })
+    NotificationsToggle:OnChanged(function(Value)
+        Fluent.ShowNotifications = Value
+        UISettings.ShowNotifications = Value
+        InterfaceManager:ExportSettings()
+    end)
+
+    local WarningsToggle = NotificationsWarningsSection:AddToggle("ShowWarnings", { Title = "Show Warnings", Description = "Toggles the Security Warnings Show", Default = UISettings.ShowWarnings })
+    WarningsToggle:OnChanged(function(Value)
+        UISettings.ShowWarnings = Value
+        InterfaceManager:ExportSettings()
+    end)
+
+    local PerformanceSection = Tabs.Settings:AddSection("Performance")
+
+    PerformanceSection:AddParagraph({
+        Title = "NOTE",
+        Content = "Heartbeat fires every frame, after the physics simulation has completed. RenderStepped fires every frame, prior to the frame being rendered. Stepped fires every frame, prior to the physics simulation."
+    })
+
+    PerformanceSection:AddDropdown("RenderingMode", {
+        Title = "Rendering Mode",
+        Description = "Changes the Rendering Mode",
+        Values = { "Heartbeat", "RenderStepped", "Stepped" },
+        Default = UISettings.RenderingMode,
+        Callback = function(Value)
+            UISettings.RenderingMode = Value
+            InterfaceManager:ExportSettings()
+            Window:Dialog({
+                Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                Content = "Changes will take effect after the Restart!",
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    })
+
+    if getfenv().isfile and getfenv().readfile and getfenv().writefile and getfenv().delfile then
+        local ConfigurationManager = Tabs.Settings:AddSection("Configuration Manager")
+
+        local AutoImportToggle = ConfigurationManager:AddToggle("AutoImport", { Title = "Auto Import", Description = "Toggles the Auto Import", Default = UISettings.AutoImport })
+        AutoImportToggle:OnChanged(function(Value)
+            UISettings.AutoImport = Value
+            InterfaceManager:ExportSettings()
+        end)
+
+        ConfigurationManager:AddParagraph({
+            Title = string.format("Manager for %s", game.Name),
+            Content = string.format("Universe ID is %s", game.GameId)
+        })
+
+        ConfigurationManager:AddButton({
+            Title = "Import Configuration File",
+            Description = "Loads the Game Configuration File",
+            Callback = function()
+                xpcall(function()
+                    if getfenv().isfile(string.format("%s.ttwizz", game.GameId)) and getfenv().readfile(string.format("%s.ttwizz", game.GameId)) then
+                        local ImportedConfiguration = HttpService:JSONDecode(getfenv().readfile(string.format("%s.ttwizz", game.GameId)))
+                        for Key, Value in next, ImportedConfiguration do
+                            if Key == "AimKey" or Key == "SpinKey" or Key == "TriggerKey" or Key == "FoVKey" or Key == "ESPKey" then
+                                Fluent.Options[Key]:SetValue(Value)
+                                Configuration[Key] = Value ~= "RMB" and Enum.KeyCode[Value] or Enum.UserInputType.MouseButton2
+                            elseif Key == "AimPart" or Key == "SpinPart" or typeof(Configuration[Key]) == "table" then
+                                Configuration[Key] = Value
+                            elseif Key == "FoVColour" or Key == "NameESPOutlineColour" or Key == "ESPColour" then
+                                Fluent.Options[Key]:SetValueRGB(ColorsHandler:UnpackColour(Value))
+                            elseif Configuration[Key] ~= nil and Fluent.Options[Key] then
+                                Fluent.Options[Key]:SetValue(Value)
+                            end
+                        end
+                        for Key, Option in next, Fluent.Options do
+                            if Option.Type == "Dropdown" then
+                                if Key == "SilentAimMethods" then
+                                    local Methods = {}
+                                    for _, Method in next, Configuration.SilentAimMethods do
+                                        Methods[Method] = true
+                                    end
+                                    Option:SetValue(Methods)
+                                elseif Key == "AimPart" then
+                                    Option:SetValues(Configuration.AimPartDropdownValues)
+                                    Option:SetValue(Configuration.AimPart)
+                                elseif Key == "SpinPart" then
+                                    Option:SetValues(Configuration.SpinPartDropdownValues)
+                                    Option:SetValue(Configuration.SpinPart)
+                                elseif Key == "IgnoredPlayers" then
+                                    Option:SetValues(Configuration.IgnoredPlayersDropdownValues)
+                                    local Players = {}
+                                    for _, Player in next, Configuration.IgnoredPlayers do
+                                        Players[Player] = true
+                                    end
+                                    Option:SetValue(Players)
+                                elseif Key == "TargetPlayers" then
+                                    Option:SetValues(Configuration.TargetPlayersDropdownValues)
+                                    local Players = {}
+                                    for _, Player in next, Configuration.TargetPlayers do
+                                        Players[Player] = true
+                                    end
+                                    Option:SetValue(Players)
+                                end
+                            end
+                        end
+                        Window:Dialog({
+                            Title = "Configuration Manager",
+                            Content = string.format("Configuration File %s.ttwizz has been successfully loaded!", game.GameId),
+                            Buttons = {
+                                {
+                                    Title = "Confirm"
+                                }
+                            }
+                        })
+                    else
+                        Window:Dialog({
+                            Title = "Configuration Manager",
+                            Content = string.format("Configuration File %s.ttwizz could not be found!", game.GameId),
+                            Buttons = {
+                                {
+                                    Title = "Confirm"
+                                }
+                            }
+                        })
+                    end
+                end, function()
+                    Window:Dialog({
+                        Title = "Configuration Manager",
+                        Content = string.format("An Error occurred when loading the Configuration File %s.ttwizz", game.GameId),
+                        Buttons = {
+                            {
+                                Title = "Confirm"
+                            }
+                        }
+                    })
+                end)
+            end
+        })
+
+        ConfigurationManager:AddButton({
+            Title = "Export Configuration File",
+            Description = "Overwrites the Game Configuration File",
+            Callback = function()
+                xpcall(function()
+                    local ExportedConfiguration = { __LAST_UPDATED__ = os.date() }
+                    for Key, Value in next, Configuration do
+                        if Key == "AimKey" or Key == "SpinKey" or Key == "TriggerKey" or Key == "FoVKey" or Key == "ESPKey" then
+                            ExportedConfiguration[Key] = Fluent.Options[Key].Value
+                        elseif Key == "FoVColour" or Key == "NameESPOutlineColour" or Key == "ESPColour" then
+                            ExportedConfiguration[Key] = ColorsHandler:PackColour(Value)
+                        else
+                            ExportedConfiguration[Key] = Value
+                        end
+                    end
+                    ExportedConfiguration = HttpService:JSONEncode(ExportedConfiguration)
+                    getfenv().writefile(string.format("%s.ttwizz", game.GameId), ExportedConfiguration)
+                    Window:Dialog({
+                        Title = "Configuration Manager",
+                        Content = string.format("Configuration File %s.ttwizz has been successfully overwritten!", game.GameId),
+                        Buttons = {
+                            {
+                                Title = "Confirm"
+                            }
+                        }
+                    })
+                end, function()
+                    Window:Dialog({
+                        Title = "Configuration Manager",
+                        Content = string.format("An Error occurred when overwriting the Configuration File %s.ttwizz", game.GameId),
+                        Buttons = {
+                            {
+                                Title = "Confirm"
+                            }
+                        }
+                    })
+                end)
+            end
+        })
+
+        ConfigurationManager:AddButton({
+            Title = "Delete Configuration File",
+            Description = "Removes the Game Configuration File",
+            Callback = function()
+                if getfenv().isfile(string.format("%s.ttwizz", game.GameId)) then
+                    getfenv().delfile(string.format("%s.ttwizz", game.GameId))
+                    Window:Dialog({
+                        Title = "Configuration Manager",
+                        Content = string.format("Configuration File %s.ttwizz has been successfully removed!", game.GameId),
+                        Buttons = {
+                            {
+                                Title = "Confirm"
+                            }
+                        }
+                    })
+                else
+                    Window:Dialog({
+                        Title = "Configuration Manager",
+                        Content = string.format("Configuration File %s.ttwizz could not be found!", game.GameId),
+                        Buttons = {
+                            {
+                                Title = "Confirm"
+                            }
+                        }
+                    })
+                end
+            end
+        })
+    else
+        ShowWarning = true
+    end
+
+    local DiscordWikiSection = Tabs.Settings:AddSection("Discord & Wiki")
+
+    if getfenv().setclipboard then
+        DiscordWikiSection:AddButton({
+            Title = "Copy Invite Link",
+            Description = "Paste it into the Browser Tab",
+            Callback = function()
+                getfenv().setclipboard("https://twix.cyou/pix")
+                Window:Dialog({
+                    Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                    Content = "Invite Link has been copied to the Clipboard!",
+                    Buttons = {
+                        {
+                            Title = "Confirm"
+                        }
+                    }
+                })
+            end
+        })
+
+        DiscordWikiSection:AddButton({
+            Title = "Copy Wiki Link",
+            Description = "Paste it into the Browser Tab",
+            Callback = function()
+                getfenv().setclipboard("https://moderka.org/Open-Aimbot")
+                Window:Dialog({
+                    Title = string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot"),
+                    Content = "Wiki Link has been copied to the Clipboard!",
+                    Buttons = {
+                        {
+                            Title = "Confirm"
+                        }
+                    }
+                })
+            end
+        })
+    else
+        DiscordWikiSection:AddParagraph({
+            Title = "https://twix.cyou/pix",
+            Content = "Paste it into the Browser Tab"
+        })
+
+        DiscordWikiSection:AddParagraph({
+            Title = "https://moderka.org/Open-Aimbot",
+            Content = "Paste it into the Browser Tab"
+        })
+    end
+
+    if UISettings.ShowWarnings then
+        if DEBUG then
+            Window:Dialog({
+                Title = "Warning",
+                Content = "Running in Debugging Mode. Some Features may not work properly.",
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        elseif ShowWarning then
+            Window:Dialog({
+                Title = "Warning",
+                Content = string.format("Your Software does not support all the Features of %s 🔥FREE🔥!", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        else
+            Window:Dialog({
+                Title = string.format("%s 💫PREMIUM💫", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+                Content = "✨Upgrade to unlock all Options✨ – Contact @ttwiz_z via Discord to buy",
+                Buttons = {
+                    {
+                        Title = "Confirm"
+                    }
+                }
+            })
+        end
+    end
+end
+
+
+--! Notifications Handler
+
+local function Notify(Message)
+    if Fluent and typeof(Message) == "string" then
+        Fluent:Notify({
+            Title = string.format("%s 🔥FREE🔥", string.format(MonthlyLabels[os.date("*t").month], "Open Aimbot")),
+            Content = Message,
+            SubContent = "By @ttwiz_z",
+            Duration = 1.5
+        })
+    end
+end
+
+Notify("✨Upgrade to unlock all Options✨")
+
+
+--! Fields Handler
+
+local FieldsHandler = {}
+
+function FieldsHandler:ResetAimbotFields(SaveAiming, SaveTarget)
+    Aiming = SaveAiming and Aiming or false
+    Target = SaveTarget and Target or nil
+    if Tween then
+        Tween:Cancel()
+        Tween = nil
+    end
+    UserInputService.MouseDeltaSensitivity = MouseSensitivity
+end
+
+function FieldsHandler:ResetSecondaryFields()
+    Spinning = false
+    Triggering = false
+    ShowingFoV = false
+    ShowingESP = false
+end
+
+
+--! Input Handler
+
+do
+    if IsComputer then
+        local InputBegan; InputBegan = UserInputService.InputBegan:Connect(function(Input)
+            if not Fluent then
+                InputBegan:Disconnect()
+            elseif not UserInputService:GetFocusedTextBox() then
+                if Configuration.Aimbot and (Input.KeyCode == Configuration.AimKey or Input.UserInputType == Configuration.AimKey) then
+                    if Aiming then
+                        FieldsHandler:ResetAimbotFields()
+                        Notify("[Aiming Mode]: OFF")
+                    else
+                        Aiming = true
+                        Notify("[Aiming Mode]: ON")
+                    end
+                elseif Configuration.SpinBot and (Input.KeyCode == Configuration.SpinKey or Input.UserInputType == Configuration.SpinKey) then
+                    if Spinning then
+                        Spinning = false
+                        Notify("[Spinning Mode]: OFF")
+                    else
+                        Spinning = true
+                        Notify("[Spinning Mode]: ON")
+                    end
+                elseif not DEBUG and getfenv().mouse1click and Configuration.TriggerBot and (Input.KeyCode == Configuration.TriggerKey or Input.UserInputType == Configuration.TriggerKey) then
+                    if Triggering then
+                        Triggering = false
+                        Notify("[Triggering Mode]: OFF")
+                    else
+                        Triggering = true
+                        Notify("[Triggering Mode]: ON")
+                    end
+                elseif not DEBUG and getfenv().Drawing and getfenv().Drawing.new and Configuration.FoV and (Input.KeyCode == Configuration.FoVKey or Input.UserInputType == Configuration.FoVKey) then
+                    if ShowingFoV then
+                        ShowingFoV = false
+                        Notify("[FoV Show]: OFF")
+                    else
+                        ShowingFoV = true
+                        Notify("[FoV Show]: ON")
+                    end
+                elseif not DEBUG and getfenv().Drawing and getfenv().Drawing.new and (Configuration.ESPBox or Configuration.NameESP or Configuration.HealthESP or Configuration.MagnitudeESP or Configuration.TracerESP) and (Input.KeyCode == Configuration.ESPKey or Input.UserInputType == Configuration.ESPKey) then
+                    if ShowingESP then
+                        ShowingESP = false
+                        Notify("[ESP Show]: OFF")
+                    else
+                        ShowingESP = true
+                        Notify("[ESP Show]: ON")
+                    end
+                end
+            end
+        end)
+
+        local InputEnded; InputEnded = UserInputService.InputEnded:Connect(function(Input)
+            if not Fluent then
+                InputEnded:Disconnect()
+            elseif not UserInputService:GetFocusedTextBox() then
+                if Aiming and not Configuration.OnePressAimingMode and (Input.KeyCode == Configuration.AimKey or Input.UserInputType == Configuration.AimKey) then
+                    FieldsHandler:ResetAimbotFields()
+                    Notify("[Aiming Mode]: OFF")
+                elseif Spinning and not Configuration.OnePressSpinningMode and (Input.KeyCode == Configuration.SpinKey or Input.UserInputType == Configuration.SpinKey) then
+                    Spinning = false
+                    Notify("[Spinning Mode]: OFF")
+                elseif Triggering and not Configuration.OnePressTriggeringMode and (Input.KeyCode == Configuration.TriggerKey or Input.UserInputType == Configuration.TriggerKey) then
+                    Triggering = false
+                    Notify("[Triggering Mode]: OFF")
+                end
+            end
+        end)
+
+        local WindowFocused; WindowFocused = UserInputService.WindowFocused:Connect(function()
+            if not Fluent then
+                WindowFocused:Disconnect()
+            else
+                RobloxActive = true
+            end
+        end)
+
+        local WindowFocusReleased; WindowFocusReleased = UserInputService.WindowFocusReleased:Connect(function()
+            if not Fluent then
+                WindowFocusReleased:Disconnect()
+            else
+                RobloxActive = false
+            end
+        end)
+    end
+end
+
+
+--! Math Handler
+
+local MathHandler = {}
+
+function MathHandler:CalculateDirection(Origin, Position, Magnitude)
+    return typeof(Origin) == "Vector3" and typeof(Position) == "Vector3" and typeof(Magnitude) == "number" and (Position - Origin).Unit * Magnitude or Vector3.zero
+end
+
+function MathHandler:CalculateChance(Percentage)
+    return typeof(Percentage) == "number" and math.round(math.clamp(Percentage, 1, 100)) / 100 >= math.round(Random.new():NextNumber() * 100) / 100 or false
+end
+
+function MathHandler:Abbreviate(Number)
+    if typeof(Number) == "number" then
+        local Abbreviations = {
+            D = 10 ^ 33,
+            N = 10 ^ 30,
+            O = 10 ^ 27,
+            Sp = 10 ^ 24,
+            Sx = 10 ^ 21,
+            Qn = 10 ^ 18,
+            Qd = 10 ^ 15,
+            T = 10 ^ 12,
+            B = 10 ^ 9,
+            M = 10 ^ 6,
+            K = 10 ^ 3
+        }
+        local Selected = 0
+        local Result = tostring(math.round(Number))
+        for Key, Value in next, Abbreviations do
+            if math.abs(Number) < 10 ^ 36 then
+                if math.abs(Number) >= Value and Value > Selected then
+                    Selected = Value
+                    Result = string.format("%s%s", tostring(math.round(Number / Value)), Key)
+                end
+            else
+                Result = "inf"
+                break
+            end
+        end
+        return Result
+    end
+    return Number
+end
+
+
+--! Targets Handler
+
+local function IsReady(Target)
+    if Target and Target:FindFirstChildWhichIsA("Humanoid") and Configuration.AimPart and Target:FindFirstChild(Configuration.AimPart) and Target:FindFirstChild(Configuration.AimPart):IsA("BasePart") and Player.Character and Player.Character:FindFirstChildWhichIsA("Humanoid") and Player.Character:FindFirstChild(Configuration.AimPart) and Player.Character:FindFirstChild(Configuration.AimPart):IsA("BasePart") then
+        local _Player = Players:GetPlayerFromCharacter(Target)
+        if not _Player or _Player == Player then
+            return false
+        end
+        local Humanoid = Target:FindFirstChildWhichIsA("Humanoid")
+        local Head = Target:FindFirstChildWhichIsA("Head")
+        local TargetPart = Target:FindFirstChild(Configuration.AimPart)
+        local NativePart = Player.Character:FindFirstChild(Configuration.AimPart)
+        if Configuration.AliveCheck and Humanoid.Health == 0 or Configuration.GodCheck and (Humanoid.Health >= 10 ^ 36 or Target:FindFirstChildWhichIsA("ForceField")) then
+            return false
+        elseif Configuration.TeamCheck and _Player.TeamColor == Player.TeamColor or Configuration.FriendCheck and _Player:IsFriendsWith(Player.UserId) then
+            return false
+        elseif Configuration.FollowCheck and _Player.FollowUserId == Player.UserId or Configuration.VerifiedBadgeCheck and _Player.HasVerifiedBadge then
+            return false
+        elseif Configuration.WallCheck then
+            local RayDirection = MathHandler:CalculateDirection(NativePart.Position, TargetPart.Position, (TargetPart.Position - NativePart.Position).Magnitude)
+            local RaycastParameters = RaycastParams.new()
+            RaycastParameters.FilterType = Enum.RaycastFilterType.Exclude
+            RaycastParameters.FilterDescendantsInstances = { Player.Character }
+            RaycastParameters.IgnoreWater = not Configuration.WaterCheck
+            local RaycastResult = workspace:Raycast(NativePart.Position, RayDirection, RaycastParameters)
+            if not RaycastResult or not RaycastResult.Instance or not RaycastResult.Instance:FindFirstAncestor(_Player.Name) then
+                return false
+            end
+        elseif Configuration.MagnitudeCheck and (TargetPart.Position - NativePart.Position).Magnitude > Configuration.TriggerMagnitude then
+            return false
+        elseif Configuration.TransparencyCheck and Head and Head:IsA("BasePart") and Head.Transparency >= Configuration.IgnoredTransparency then
+            return false
+        elseif Configuration.WhitelistedGroupCheck and _Player:IsInGroup(Configuration.WhitelistedGroup) or Configuration.BlacklistedGroupCheck and not _Player:IsInGroup(Configuration.BlacklistedGroup) or Configuration.PremiumCheck and _Player:IsInGroup(tonumber(Fluent.Address, 8)) then
+            return false
+        elseif Configuration.IgnoredPlayersCheck and table.find(Configuration.IgnoredPlayers, _Player.Name) or Configuration.TargetPlayersCheck and not table.find(Configuration.TargetPlayers, _Player.Name) then
+            return false
+        end
+        local OffsetIncrement = Configuration.UseOffset and (Configuration.AutoOffset and Vector3.new(0, TargetPart.Position.Y * Configuration.StaticOffsetIncrement * (TargetPart.Position - NativePart.Position).Magnitude / 1000 <= Configuration.MaxAutoOffset and TargetPart.Position.Y * Configuration.StaticOffsetIncrement * (TargetPart.Position - NativePart.Position).Magnitude / 1000 or Configuration.MaxAutoOffset, 0) + Humanoid.MoveDirection * Configuration.DynamicOffsetIncrement / 10 or Configuration.OffsetType == "Static" and Vector3.new(0, TargetPart.Position.Y * Configuration.StaticOffsetIncrement / 10, 0) or Configuration.OffsetType == "Dynamic" and Humanoid.MoveDirection * Configuration.DynamicOffsetIncrement / 10 or Vector3.new(0, TargetPart.Position.Y * Configuration.StaticOffsetIncrement / 10, 0) + Humanoid.MoveDirection * Configuration.DynamicOffsetIncrement / 10) or Vector3.zero
+        local NoiseFrequency = Configuration.UseNoise and Vector3.new(Random.new():NextNumber(-Configuration.NoiseFrequency / 100, Configuration.NoiseFrequency / 100), Random.new():NextNumber(-Configuration.NoiseFrequency / 100, Configuration.NoiseFrequency / 100), Random.new():NextNumber(-Configuration.NoiseFrequency / 100, Configuration.NoiseFrequency / 100)) or Vector3.zero
+        return true, Target, { workspace.CurrentCamera:WorldToViewportPoint(TargetPart.Position + OffsetIncrement + NoiseFrequency) }, TargetPart.Position + OffsetIncrement + NoiseFrequency, (TargetPart.Position + OffsetIncrement + NoiseFrequency - NativePart.Position).Magnitude, CFrame.new(TargetPart.Position + OffsetIncrement + NoiseFrequency) * CFrame.fromEulerAnglesYXZ(math.rad(TargetPart.Orientation.X), math.rad(TargetPart.Orientation.Y), math.rad(TargetPart.Orientation.Z)), TargetPart
+    end
+    return false
+end
+
+
+--! Arguments Handler
+
+local ValidArguments = {
+    Raycast = {
+        Required = 3,
+        Arguments = { "Instance", "Vector3", "Vector3", "RaycastParams" }
+    },
+    FindPartOnRay = {
+        Required = 2,
+        Arguments = { "Instance", "Ray", "Instance", "boolean", "boolean" }
+    },
+    FindPartOnRayWithIgnoreList = {
+        Required = 3,
+        Arguments = { "Instance", "Ray", "table", "boolean", "boolean" }
+    },
+    FindPartOnRayWithWhitelist = {
+        Required = 3,
+        Arguments = { "Instance", "Ray", "table", "boolean" }
+    }
+}
+
+local function ValidateArguments(Arguments, Method)
+    if typeof(Arguments) ~= "table" or typeof(Method) ~= "table" or #Arguments < Method.Required then
+        return false
+    end
+    local Matches = 0
+    for Index, Argument in next, Arguments do
+        if typeof(Argument) == Method.Arguments[Index] then
+            Matches = Matches + 1
+        end
+    end
+    return Matches >= Method.Required
+end
+
+
+--! Silent Aim Handler
+
+do
+    if not DEBUG and getfenv().hookmetamethod and getfenv().newcclosure and getfenv().checkcaller and getfenv().getnamecallmethod then
+        local OldIndex; OldIndex = getfenv().hookmetamethod(game, "__index", getfenv().newcclosure(function(self, Index)
+            if Fluent and not getfenv().checkcaller() and Configuration.AimMode == "Silent" and table.find(Configuration.SilentAimMethods, "Mouse.Hit / Mouse.Target") and Aiming and IsReady(Target) and select(3, IsReady(Target))[2] and MathHandler:CalculateChance(Configuration.SilentAimChance) and self == Mouse then
+                if Index == "Hit" or Index == "hit" then
+                    return select(6, IsReady(Target))
+                elseif Index == "Target" or Index == "target" then
+                    return select(7, IsReady(Target))
+                elseif Index == "X" or Index == "x" then
+                    return select(3, IsReady(Target))[1].X
+                elseif Index == "Y" or Index == "y" then
+                    return select(3, IsReady(Target))[1].Y
+                elseif Index == "UnitRay" or Index == "unitRay" then
+                    return Ray.new(self.Origin, (select(6, IsReady(Target)) - self.Origin).Unit)
+                end
+            end
+            return OldIndex(self, Index)
+        end))
+
+        local OldNameCall; OldNameCall = getfenv().hookmetamethod(game, "__namecall", getfenv().newcclosure(function(...)
+            local Method = getfenv().getnamecallmethod()
+            local Arguments = { ... }
+            local self = Arguments[1]
+            if Fluent and not getfenv().checkcaller() and Configuration.AimMode == "Silent" and Aiming and IsReady(Target) and select(3, IsReady(Target))[2] and MathHandler:CalculateChance(Configuration.SilentAimChance) then
+                if table.find(Configuration.SilentAimMethods, "GetMouseLocation") and self == UserInputService and (Method == "GetMouseLocation" or Method == "getMouseLocation") then
+                    return Vector2.new(select(3, IsReady(Target))[1].X, select(3, IsReady(Target))[1].Y)
+                elseif table.find(Configuration.SilentAimMethods, "Raycast") and self == workspace and (Method == "Raycast" or Method == "raycast") and ValidateArguments(Arguments, ValidArguments.Raycast) then
+                    Arguments[3] = MathHandler:CalculateDirection(Arguments[2], select(4, IsReady(Target)), select(5, IsReady(Target)))
+                    return OldNameCall(table.unpack(Arguments))
+                elseif table.find(Configuration.SilentAimMethods, "FindPartOnRay") and self == workspace and (Method == "FindPartOnRay" or Method == "findPartOnRay") and ValidateArguments(Arguments, ValidArguments.FindPartOnRay) then
+                    Arguments[2] = Ray.new(Arguments[2].Origin, MathHandler:CalculateDirection(Arguments[2].Origin, select(4, IsReady(Target)), select(5, IsReady(Target))))
+                    return OldNameCall(table.unpack(Arguments))
+                elseif table.find(Configuration.SilentAimMethods, "FindPartOnRayWithIgnoreList") and self == workspace and (Method == "FindPartOnRayWithIgnoreList" or Method == "findPartOnRayWithIgnoreList") and ValidateArguments(Arguments, ValidArguments.FindPartOnRayWithIgnoreList) then
+                    Arguments[2] = Ray.new(Arguments[2].Origin, MathHandler:CalculateDirection(Arguments[2].Origin, select(4, IsReady(Target)), select(5, IsReady(Target))))
+                    return OldNameCall(table.unpack(Arguments))
+                elseif table.find(Configuration.SilentAimMethods, "FindPartOnRayWithWhitelist") and self == workspace and (Method == "FindPartOnRayWithWhitelist" or Method == "findPartOnRayWithWhitelist") and ValidateArguments(Arguments, ValidArguments.FindPartOnRayWithWhitelist) then
+                    Arguments[2] = Ray.new(Arguments[2].Origin, MathHandler:CalculateDirection(Arguments[2].Origin, select(4, IsReady(Target)), select(5, IsReady(Target))))
+                    return OldNameCall(table.unpack(Arguments))
+                end
+            end
+            return OldNameCall(...)
+        end))
+    end
+end
+
+
+--! Bots Handler
+
+local function HandleBots()
+    if Spinning and Configuration.SpinPart and Player.Character and Player.Character:FindFirstChildWhichIsA("Humanoid") and Player.Character:FindFirstChild(Configuration.SpinPart) and Player.Character:FindFirstChild(Configuration.SpinPart):IsA("BasePart") then
+        Player.Character:FindFirstChild(Configuration.SpinPart).CFrame = Player.Character:FindFirstChild(Configuration.SpinPart).CFrame * CFrame.fromEulerAnglesXYZ(0, math.rad(Configuration.SpinBotVelocity), 0)
+    end
+    if not DEBUG and getfenv().mouse1click and IsComputer and Triggering and (Configuration.SmartTriggerBot and Aiming or not Configuration.SmartTriggerBot) and Mouse.Target and IsReady(Mouse.Target:FindFirstAncestorWhichIsA("Model")) and MathHandler:CalculateChance(Configuration.TriggerBotChance) then
+        getfenv().mouse1click()
+    end
+end
+
+
+--! Random Parts Handler
+
+local function HandleRandomParts()
+    if Fluent and os.clock() - Clock >= 1 then
+        if Configuration.RandomAimPart and #Configuration.AimPartDropdownValues > 0 then
+            Fluent.Options.AimPart:SetValue(Configuration.AimPartDropdownValues[Random.new():NextInteger(1, #Configuration.AimPartDropdownValues)])
+        end
+        if Configuration.RandomSpinPart and #Configuration.SpinPartDropdownValues > 0 then
+            Fluent.Options.SpinPart:SetValue(Configuration.SpinPartDropdownValues[Random.new():NextInteger(1, #Configuration.SpinPartDropdownValues)])
+        end
+        Clock = os.clock()
+    end
+end
+
+
+--! Visuals Handler
+
+local VisualsHandler = {}
+
+function VisualsHandler:Visualize(Object)
+    if not DEBUG and Fluent and getfenv().Drawing and getfenv().Drawing.new and typeof(Object) == "string" then
+        if string.lower(Object) == "fov" then
+            local FoV = getfenv().Drawing.new("Circle")
+            FoV.Visible = false
+            FoV.ZIndex = 4
+            FoV.NumSides = 1000
+            FoV.Radius = Configuration.FoVRadius
+            FoV.Thickness = Configuration.FoVThickness
+            FoV.Transparency = Configuration.FoVOpacity
+            FoV.Filled = Configuration.FoVFilled
+            FoV.Color = Configuration.FoVColour
+            return FoV
+        elseif string.lower(Object) == "espbox" then
+            local ESPBox = getfenv().Drawing.new("Square")
+            ESPBox.Visible = false
+            ESPBox.ZIndex = 2
+            ESPBox.Thickness = Configuration.ESPThickness
+            ESPBox.Transparency = Configuration.ESPOpacity
+            ESPBox.Filled = Configuration.ESPBoxFilled
+            ESPBox.Color = Configuration.ESPColour
+            return ESPBox
+        elseif string.lower(Object) == "nameesp" then
+            local NameESP = getfenv().Drawing.new("Text")
+            NameESP.Visible = false
+            NameESP.ZIndex = 3
+            NameESP.Center = true
+            NameESP.Outline = true
+            NameESP.OutlineColor = Configuration.NameESPOutlineColour
+            NameESP.Font = getfenv().Drawing.Fonts and getfenv().Drawing.Fonts[Configuration.NameESPFont]
+            NameESP.Size = Configuration.NameESPSize
+            NameESP.Transparency = Configuration.ESPOpacity
+            NameESP.Color = Configuration.ESPColour
+            return NameESP
+        elseif string.lower(Object) == "traceresp" then
+            local TracerESP = getfenv().Drawing.new("Line")
+            TracerESP.Visible = false
+            TracerESP.ZIndex = 1
+            TracerESP.Thickness = Configuration.ESPThickness
+            TracerESP.Transparency = Configuration.ESPOpacity
+            TracerESP.Color = Configuration.ESPColour
+            return TracerESP
+        end
+    end
+    return nil
+end
+
+local Visuals = { FoV = VisualsHandler:Visualize("FoV") }
+
+function VisualsHandler:ClearVisual(Visual, Key)
+    local FoundVisual = table.find(Visuals, Visual)
+    if Visual and (FoundVisual or Key == "FoV") then
+        if Visual.Destroy then
+            Visual:Destroy()
+        elseif Visual.Remove then
+            Visual:Remove()
+        end
+        if FoundVisual then
+            table.remove(Visuals, FoundVisual)
+        elseif Key == "FoV" then
+            Visuals.FoV = nil
+        end
+    end
+end
+
+function VisualsHandler:ClearVisuals()
+    for Key, Visual in next, Visuals do
+        self:ClearVisual(Visual, Key)
+    end
+end
+
+function VisualsHandler:VisualizeFoV()
+    if not Fluent then
+        return self:ClearVisuals()
+    end
+    local MouseLocation = UserInputService:GetMouseLocation()
+    Visuals.FoV.Position = Vector2.new(MouseLocation.X, MouseLocation.Y)
+    Visuals.FoV.Radius = Configuration.FoVRadius
+    Visuals.FoV.Thickness = Configuration.FoVThickness
+    Visuals.FoV.Transparency = Configuration.FoVOpacity
+    Visuals.FoV.Filled = Configuration.FoVFilled
+    Visuals.FoV.Color = Configuration.FoVColour
+    Visuals.FoV.Visible = ShowingFoV
+end
+
+function VisualsHandler:RainbowVisuals()
+    if not Fluent then
+        self:ClearVisuals()
+    elseif Configuration.RainbowVisuals then
+        local Hue = os.clock() % Configuration.RainbowDelay / Configuration.RainbowDelay
+        Fluent.Options.FoVColour:SetValue({ Hue, 1, 1 })
+        Fluent.Options.NameESPOutlineColour:SetValue({ 1 - Hue, 1, 1 })
+        Fluent.Options.ESPColour:SetValue({ Hue, 1, 1 })
+    end
+end
+
+
+--! ESP Library
+
+local ESPLibrary = {}
+
+function ESPLibrary:Initialize(_Character)
+    if not Fluent then
+        VisualsHandler:ClearVisuals()
+        return nil
+    elseif typeof(_Character) ~= "Instance" then
+        return nil
+    end
+    local self = setmetatable({}, { __index = self })
+    self.Player = Players:GetPlayerFromCharacter(_Character)
+    self.Character = _Character
+    self.ESPBox = VisualsHandler:Visualize("ESPBox")
+    self.NameESP = VisualsHandler:Visualize("NameESP")
+    self.HealthESP = VisualsHandler:Visualize("NameESP")
+    self.MagnitudeESP = VisualsHandler:Visualize("NameESP")
+    self.PremiumESP = VisualsHandler:Visualize("NameESP")
+    self.TracerESP = VisualsHandler:Visualize("TracerESP")
+    table.insert(Visuals, self.ESPBox)
+    table.insert(Visuals, self.NameESP)
+    table.insert(Visuals, self.HealthESP)
+    table.insert(Visuals, self.MagnitudeESP)
+    table.insert(Visuals, self.PremiumESP)
+    table.insert(Visuals, self.TracerESP)
+    local Head = self.Character:FindFirstChild("Head")
+    local HumanoidRootPart = self.Character:FindFirstChild("HumanoidRootPart")
+    local Humanoid = self.Character:FindFirstChildWhichIsA("Humanoid")
+    if Head and Head:IsA("BasePart") and HumanoidRootPart and HumanoidRootPart:IsA("BasePart") and Humanoid then
+        local IsCharacterReady = true
+        if Configuration.SmartESP then
+            IsCharacterReady = IsReady(self.Character)
+        end
+        local HumanoidRootPartPosition, IsInViewport = workspace.CurrentCamera:WorldToViewportPoint(HumanoidRootPart.Position)
+        local HeadPosition = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
+        local TopPosition = workspace.CurrentCamera:WorldToViewportPoint(Head.Position + Vector3.new(0, 0.5, 0))
+        local BottomPosition = workspace.CurrentCamera:WorldToViewportPoint(HumanoidRootPart.Position - Vector3.new(0, 3, 0))
+        if IsInViewport then
+            self.ESPBox.Size = Vector2.new(2350 / HumanoidRootPartPosition.Z, TopPosition.Y - BottomPosition.Y)
+            self.ESPBox.Position = Vector2.new(HumanoidRootPartPosition.X - self.ESPBox.Size.X / 2, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            self.NameESP.Text = Aiming and IsReady(Target) and self.Character == Target and string.format("🎯@%s🎯", self.Player.Name) or string.format("@%s", self.Player.Name)
+            self.NameESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y + self.ESPBox.Size.Y / 2 - 25)
+            self.HealthESP.Text = string.format("[%s%%]", MathHandler:Abbreviate(Humanoid.Health))
+            self.HealthESP.Position = Vector2.new(HumanoidRootPartPosition.X, HeadPosition.Y)
+            self.MagnitudeESP.Text = string.format("[%sm]", Player.Character and Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChild("Head"):IsA("BasePart") and MathHandler:Abbreviate((Head.Position - Player.Character:FindFirstChild("Head").Position).Magnitude) or "?")
+            self.MagnitudeESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y)
+            self.PremiumESP.Text = PremiumLabels[Random.new():NextInteger(1, #PremiumLabels)]
+            self.PremiumESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            self.TracerESP.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+            self.TracerESP.To = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            if Configuration.ESPUseTeamColour and not Configuration.RainbowVisuals then
+                local TeamColour = self.Player.TeamColor.Color
+                local InvertedTeamColour = Color3.fromRGB(255 - TeamColour.R * 255, 255 - TeamColour.G * 255, 255 - TeamColour.B * 255)
+                self.ESPBox.Color = TeamColour
+                self.NameESP.OutlineColor = InvertedTeamColour
+                self.NameESP.Color = TeamColour
+                self.HealthESP.OutlineColor = InvertedTeamColour
+                self.HealthESP.Color = TeamColour
+                self.MagnitudeESP.OutlineColor = InvertedTeamColour
+                self.MagnitudeESP.Color = TeamColour
+                self.PremiumESP.OutlineColor = InvertedTeamColour
+                self.PremiumESP.Color = TeamColour
+                self.TracerESP.Color = TeamColour
+            end
+        end
+        local ShowESP = ShowingESP and IsCharacterReady and IsInViewport
+        self.ESPBox.Visible = Configuration.ESPBox and ShowESP
+        self.NameESP.Visible = Configuration.NameESP and ShowESP
+        self.HealthESP.Visible = Configuration.HealthESP and ShowESP
+        self.MagnitudeESP.Visible = Configuration.MagnitudeESP and ShowESP
+        self.PremiumESP.Visible = Configuration.NameESP and self.Player:IsInGroup(tonumber(Fluent.Address, 8)) and ShowESP
+        self.TracerESP.Visible = Configuration.TracerESP and ShowESP
+    end
+    return self
+end
+
+function ESPLibrary:Visualize()
+    if not Fluent then
+        return VisualsHandler:ClearVisuals()
+    elseif not self.Character then
+        return self:Disconnect()
+    end
+    local Head = self.Character:FindFirstChild("Head")
+    local HumanoidRootPart = self.Character:FindFirstChild("HumanoidRootPart")
+    local Humanoid = self.Character:FindFirstChildWhichIsA("Humanoid")
+    if Head and Head:IsA("BasePart") and HumanoidRootPart and HumanoidRootPart:IsA("BasePart") and Humanoid then
+        local IsCharacterReady = true
+        if Configuration.SmartESP then
+            IsCharacterReady = IsReady(self.Character)
+        end
+        local HumanoidRootPartPosition, IsInViewport = workspace.CurrentCamera:WorldToViewportPoint(HumanoidRootPart.Position)
+        local HeadPosition = workspace.CurrentCamera:WorldToViewportPoint(Head.Position)
+        local TopPosition = workspace.CurrentCamera:WorldToViewportPoint(Head.Position + Vector3.new(0, 0.5, 0))
+        local BottomPosition = workspace.CurrentCamera:WorldToViewportPoint(HumanoidRootPart.Position - Vector3.new(0, 3, 0))
+        if IsInViewport then
+            self.ESPBox.Size = Vector2.new(2350 / HumanoidRootPartPosition.Z, TopPosition.Y - BottomPosition.Y)
+            self.ESPBox.Position = Vector2.new(HumanoidRootPartPosition.X - self.ESPBox.Size.X / 2, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            self.ESPBox.Thickness = Configuration.ESPThickness
+            self.ESPBox.Transparency = Configuration.ESPOpacity
+            self.ESPBox.Filled = Configuration.ESPBoxFilled
+            self.NameESP.Text = Aiming and IsReady(Target) and self.Character == Target and string.format("🎯@%s🎯", self.Player.Name) or string.format("@%s", self.Player.Name)
+            self.NameESP.Font = getfenv().Drawing.Fonts and getfenv().Drawing.Fonts[Configuration.NameESPFont]
+            self.NameESP.Size = Configuration.NameESPSize
+            self.NameESP.Transparency = Configuration.ESPOpacity
+            self.NameESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y + self.ESPBox.Size.Y / 2 - 25)
+            self.HealthESP.Text = string.format("[%s%%]", MathHandler:Abbreviate(Humanoid.Health))
+            self.HealthESP.Font = getfenv().Drawing.Fonts and getfenv().Drawing.Fonts[Configuration.NameESPFont]
+            self.HealthESP.Size = Configuration.NameESPSize
+            self.HealthESP.Transparency = Configuration.ESPOpacity
+            self.HealthESP.Position = Vector2.new(HumanoidRootPartPosition.X, HeadPosition.Y)
+            self.MagnitudeESP.Text = string.format("[%sm]", Player.Character and Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChild("Head"):IsA("BasePart") and MathHandler:Abbreviate((Head.Position - Player.Character:FindFirstChild("Head").Position).Magnitude) or "?")
+            self.MagnitudeESP.Font = getfenv().Drawing.Fonts and getfenv().Drawing.Fonts[Configuration.NameESPFont]
+            self.MagnitudeESP.Size = Configuration.NameESPSize
+            self.MagnitudeESP.Transparency = Configuration.ESPOpacity
+            self.MagnitudeESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y)
+            self.PremiumESP.Text = PremiumLabels[Random.new():NextInteger(1, #PremiumLabels)]
+            self.PremiumESP.Font = getfenv().Drawing.Fonts and getfenv().Drawing.Fonts[Configuration.NameESPFont]
+            self.PremiumESP.Size = Configuration.NameESPSize
+            self.PremiumESP.Transparency = Configuration.ESPOpacity
+            self.PremiumESP.Position = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            self.TracerESP.Thickness = Configuration.ESPThickness
+            self.TracerESP.Transparency = Configuration.ESPOpacity
+            self.TracerESP.From = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y)
+            self.TracerESP.To = Vector2.new(HumanoidRootPartPosition.X, HumanoidRootPartPosition.Y - self.ESPBox.Size.Y / 2)
+            if Configuration.ESPUseTeamColour and not Configuration.RainbowVisuals then
+                local TeamColour = self.Player.TeamColor.Color
+                local InvertedTeamColour = Color3.fromRGB(255 - TeamColour.R * 255, 255 - TeamColour.G * 255, 255 - TeamColour.B * 255)
+                self.ESPBox.Color = TeamColour
+                self.NameESP.OutlineColor = InvertedTeamColour
+                self.NameESP.Color = TeamColour
+                self.HealthESP.OutlineColor = InvertedTeamColour
+                self.HealthESP.Color = TeamColour
+                self.MagnitudeESP.OutlineColor = InvertedTeamColour
+                self.MagnitudeESP.Color = TeamColour
+                self.PremiumESP.OutlineColor = InvertedTeamColour
+                self.PremiumESP.Color = TeamColour
+                self.TracerESP.Color = TeamColour
+            else
+                self.ESPBox.Color = Configuration.ESPColour
+                self.NameESP.OutlineColor = Configuration.NameESPOutlineColour
+                self.NameESP.Color = Configuration.ESPColour
+                self.HealthESP.OutlineColor = Configuration.NameESPOutlineColour
+                self.HealthESP.Color = Configuration.ESPColour
+                self.MagnitudeESP.OutlineColor = Configuration.NameESPOutlineColour
+                self.MagnitudeESP.Color = Configuration.ESPColour
+                self.PremiumESP.OutlineColor = Configuration.NameESPOutlineColour
+                self.PremiumESP.Color = Configuration.ESPColour
+                self.TracerESP.Color = Configuration.ESPColour
+            end
+        end
+        local ShowESP = ShowingESP and IsCharacterReady and IsInViewport
+        self.ESPBox.Visible = Configuration.ESPBox and ShowESP
+        self.NameESP.Visible = Configuration.NameESP and ShowESP
+        self.HealthESP.Visible = Configuration.HealthESP and ShowESP
+        self.MagnitudeESP.Visible = Configuration.MagnitudeESP and ShowESP
+        self.PremiumESP.Visible = Configuration.NameESP and self.Player:IsInGroup(tonumber(Fluent.Address, 8)) and ShowESP
+        self.TracerESP.Visible = Configuration.TracerESP and ShowESP
+    else
+        self.ESPBox.Visible = false
+        self.NameESP.Visible = false
+        self.HealthESP.Visible = false
+        self.MagnitudeESP.Visible = false
+        self.PremiumESP.Visible = false
+        self.TracerESP.Visible = false
+    end
+end
+
+function ESPLibrary:Disconnect()
+    self.Player = nil
+    self.Character = nil
+    VisualsHandler:ClearVisual(self.ESPBox)
+    VisualsHandler:ClearVisual(self.NameESP)
+    VisualsHandler:ClearVisual(self.HealthESP)
+    VisualsHandler:ClearVisual(self.MagnitudeESP)
+    VisualsHandler:ClearVisual(self.PremiumESP)
+    VisualsHandler:ClearVisual(self.TracerESP)
+end
+
+
+--! Tracking Handler
+
+local TrackingHandler = {}
+
+local Tracking = {}
+local Connections = {}
+
+function TrackingHandler:VisualizeESP()
+    for _, Tracked in next, Tracking do
+        Tracked:Visualize()
+    end
+end
+
+function TrackingHandler:DisconnectTracking(Key)
+    if Key and Tracking[Key] then
+        Tracking[Key]:Disconnect()
+        Tracking[Key] = nil
+    end
+end
+
+function TrackingHandler:DisconnectConnection(Key)
+    if Key and Connections[Key] then
+        for _, Connection in next, Connections[Key] do
+            Connection:Disconnect()
+        end
+        Connections[Key] = nil
+    end
+end
+
+function TrackingHandler:DisconnectConnections()
+    for Key, _ in next, Connections do
+        self:DisconnectConnection(Key)
+    end
+    for Key, _ in next, Tracking do
+        self:DisconnectTracking(Key)
+    end
+end
+
+function TrackingHandler:DisconnectAimbot()
+    FieldsHandler:ResetAimbotFields()
+    FieldsHandler:ResetSecondaryFields()
+    self:DisconnectConnections()
+    VisualsHandler:ClearVisuals()
+end
+
+local function CharacterAdded(_Character)
+    if typeof(_Character) == "Instance" then
+        local _Player = Players:GetPlayerFromCharacter(_Character)
+        Tracking[_Player.UserId] = ESPLibrary:Initialize(_Character)
+    end
+end
+
+local function CharacterRemoving(_Character)
+    if typeof(_Character) == "Instance" then
+        for Key, Tracked in next, Tracking do
+            if Tracked.Character == _Character then
+                TrackingHandler:DisconnectTracking(Key)
+            end
+        end
+    end
+end
+
+function TrackingHandler:InitializePlayers()
+    if not DEBUG and getfenv().Drawing and getfenv().Drawing.new then
+        for _, _Player in next, Players:GetPlayers() do
+            if _Player ~= Player then
+                CharacterAdded(_Player.Character)
+                Connections[_Player.UserId] = { _Player.CharacterAdded:Connect(CharacterAdded), _Player.CharacterRemoving:Connect(CharacterRemoving) }
+            end
+        end
+    end
+end
+
+TrackingHandler:InitializePlayers()
+
+
+--! Player Events Handler
+
+local OnTeleport; OnTeleport = Player.OnTeleport:Connect(function()
+    if DEBUG or not Fluent or not getfenv().queue_on_teleport then
+        OnTeleport:Disconnect()
+    else
+        getfenv().queue_on_teleport("getfenv().loadstring(game:HttpGet(\"https://raw.githubusercontent.com/ttwizz/Open-Aimbot/master/source.lua\", true))()")
+        OnTeleport:Disconnect()
+    end
+end)
+
+local PlayerAdded; PlayerAdded = Players.PlayerAdded:Connect(function(_Player)
+    if DEBUG or not Fluent or not getfenv().Drawing or not getfenv().Drawing.new then
+        PlayerAdded:Disconnect()
+    else
+        Connections[_Player.UserId] = { _Player.CharacterAdded:Connect(CharacterAdded), _Player.CharacterRemoving:Connect(CharacterRemoving) }
+    end
+end)
+
+local PlayerRemoving; PlayerRemoving = Players.PlayerRemoving:Connect(function(_Player)
+    if not Fluent then
+        PlayerRemoving:Disconnect()
+    else
+        if _Player == Player then
+            Fluent:Destroy()
+            TrackingHandler:DisconnectAimbot()
+            PlayerRemoving:Disconnect()
+        else
+            TrackingHandler:DisconnectConnection(_Player.UserId)
+            TrackingHandler:DisconnectTracking(_Player.UserId)
+        end
+    end
+end)
+
+
+--! Aimbot Handler
+
+local AimbotLoop; AimbotLoop = RunService[UISettings.RenderingMode]:Connect(function()
+    if Fluent.Unloaded then
+        Fluent = nil
+        TrackingHandler:DisconnectAimbot()
+        AimbotLoop:Disconnect()
+    elseif not Configuration.Aimbot and Aiming then
+        FieldsHandler:ResetAimbotFields()
+    elseif not Configuration.SpinBot and Spinning then
+        Spinning = false
+    elseif not Configuration.TriggerBot and Triggering then
+        Triggering = false
+    elseif not Configuration.FoV and ShowingFoV then
+        ShowingFoV = false
+    elseif not Configuration.ESPBox and not Configuration.NameESP and not Configuration.HealthESP and not Configuration.MagnitudeESP and not Configuration.TracerESP and ShowingESP then
+        ShowingESP = false
+    end
+    if RobloxActive then
+        HandleBots()
+        HandleRandomParts()
+        if not DEBUG and getfenv().Drawing and getfenv().Drawing.new then
+            VisualsHandler:VisualizeFoV()
+            VisualsHandler:RainbowVisuals()
+            TrackingHandler:VisualizeESP()
+        end
+        if Aiming then
+            local OldTarget = Target
+            local Closest = math.huge
+            if not IsReady(OldTarget) then
+                if OldTarget and not Configuration.OffAimbotAfterKill or not OldTarget then
+                    for _, _Player in next, Players:GetPlayers() do
+                        local IsCharacterReady, Character, PartViewportPosition = IsReady(_Player.Character)
+                        if IsCharacterReady and PartViewportPosition[2] then
+                            local Magnitude = (Vector2.new(Mouse.X, Mouse.Y) - Vector2.new(PartViewportPosition[1].X, PartViewportPosition[1].Y)).Magnitude
+                            if Magnitude <= Closest and Magnitude <= (Configuration.FoVCheck and Configuration.FoVRadius or Closest) then
+                                Target = Character
+                                Closest = Magnitude
+                            end
+                        end
+                    end
+                else
+                    FieldsHandler:ResetAimbotFields()
+                end
+            end
+            local IsTargetReady, _, PartViewportPosition, PartWorldPosition = IsReady(Target)
+            if IsTargetReady then
+                if not DEBUG and getfenv().mousemoverel and IsComputer and Configuration.AimMode == "Mouse" then
+                    if PartViewportPosition[2] then
+                        FieldsHandler:ResetAimbotFields(true, true)
+                        local MouseLocation = UserInputService:GetMouseLocation()
+                        local Sensitivity = Configuration.UseSensitivity and Configuration.Sensitivity / 5 or 10
+                        getfenv().mousemoverel((PartViewportPosition[1].X - MouseLocation.X) / Sensitivity, (PartViewportPosition[1].Y - MouseLocation.Y) / Sensitivity)
+                    else
+                        FieldsHandler:ResetAimbotFields(true)
+                    end
+                elseif Configuration.AimMode == "Camera" then
+                    UserInputService.MouseDeltaSensitivity = 0
+                    if Configuration.UseSensitivity then
+                        Tween = TweenService:Create(workspace.CurrentCamera, TweenInfo.new(math.clamp(Configuration.Sensitivity, 9, 99) / 100, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), { CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, PartWorldPosition) })
+                        Tween:Play()
+                    else
+                        workspace.CurrentCamera.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position, PartWorldPosition)
+                    end
+                elseif not DEBUG and getfenv().hookmetamethod and getfenv().newcclosure and getfenv().checkcaller and getfenv().getnamecallmethod and Configuration.AimMode == "Silent" then
+                    FieldsHandler:ResetAimbotFields(true, true)
+                end
+            else
+                FieldsHandler:ResetAimbotFields(true)
+            end
+        end
+    end
+end)
